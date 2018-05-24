@@ -1,0 +1,24 @@
+.DS_Store
+backgammon_online_c/node_modules
+backgammon_online_s/node_modules
+backgammon_online_s/dist
+backgammon_online_c/dist
+
+# local env files
+.env.local
+.env.*.local
+
+# Log files
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Editor directories and files
+backgammon_online_s/.idea
+backgammon_online_c/.idea
+.vscode
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw*
