@@ -3,7 +3,9 @@
     <el-container>
       <el-header>Header</el-header>
       <el-container>
-        <el-aside width="200px">Aside</el-aside>
+        <el-aside width="200px">
+          <router-link to="/about">About</router-link>
+        </el-aside>
         <el-main>Main</el-main>
       </el-container>
     </el-container>
@@ -18,6 +20,15 @@ export default {
   name: 'home',
   components: {
     HelloWorld
+  },
+
+  beforeRouteLeave (to, from , next) {
+    const answer = window.confirm('Do you really want to leave? you have unsaved changes!')
+    if (answer) {
+      next()
+    } else {
+      next(false)
+    }
   }
 }
 </script>
