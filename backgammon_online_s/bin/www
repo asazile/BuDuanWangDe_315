@@ -24,6 +24,7 @@ var server = http.createServer(app);
 /**
  * socket.io
  */
+
 const socketInit = require('../socket_io/socket_init');
 const io = require('socket.io')(server);
 socketInit(io);
