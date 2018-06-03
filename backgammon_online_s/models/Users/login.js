@@ -1,5 +1,7 @@
 const connPool = require('../Common/connPool');
 
+const { LOG } = require('../Usually/LocalConst');
+
 module.exports = {
     login: function (username, password, callback) {
         let pool = connPool();
@@ -16,7 +18,8 @@ module.exports = {
                 conn.release();
 
                 if(err) {
-                    callback(err);
+                    fs.appendFile(LOG.modelsError, `Time: ${new Date().toUTCString()}\n${err.stack}\n`, 'utf8');
+                    callback(new Error('数据库错误...'));
                     return false;
                 }
 
@@ -38,7 +41,7 @@ module.exports = {
         });
     },
 
-    rigister: function (username, name, password) {
+    rigister: function (username, name, password, callback) {
         let pool = connPool();
 
         pool.getConnection(function (err, conn) {
@@ -52,12 +55,44 @@ module.exports = {
             conn.query(sql, param, function (err, rs) {
                 conn.release();
 
+                if(err.message.indexOf('PRIMARY') > -1) {
+                    callback(new Error('该账号已被注册...'));
+                    return false;
+                }
+
                 if(err) {
-                    callback(err);
+                    fs.appendFile(LOG.modelsError, `Time: ${new Date().toUTCString()}\n${err.stack}\n`, 'utf8');
+                    callback(new Error('数据库错误...'));
                     return false;
                 }
 
                 callback(null);
+            });
+        });
+    },
+
+    checkUsername: function (username, callback) {
+        let pool = connPool();
+
+        pool.getConnection(function (err, conn) {
+            if(err) {
+                callback(err);
+                return false;
+            }
+
+            let sql = 'SELECT id FROM user WHERE username = ?;';
+            let param = [username];
+            conn.query(sql, param, function (err, rs) {
+                conn.release();
+
+                if(err) {
+                    fs.appendFile(LOG.modelsError, `Time: ${new Date().toUTCString()}\n${err.stack}\n`, 'utf8');
+                    callback(new Error('数据库错误...'));
+                    return false;
+                }
+
+                let usernameExist = Boolean(rs[0]);
+                callback(null, usernameExist);
             });
         });
     }

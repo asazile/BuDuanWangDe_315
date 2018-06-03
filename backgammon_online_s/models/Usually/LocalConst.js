@@ -3,6 +3,6 @@ module.exports = {
      * This is Log use CONST
      */
     log: {
-        visitorLogPath: "log/visitor.txt"
+        modelsError: "log/models_error.txt"
     }
 };
