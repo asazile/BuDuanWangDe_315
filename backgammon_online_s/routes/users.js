@@ -70,4 +70,24 @@ router.post('/checkUsername', function (req, res, next) {
     });
 });
 
+router.get('/checkLogin', function (req, res, next) {
+    let userInfo = req.session.userInfo;
+
+    if(userInfo) {
+        let result = new ResObject(1, '用户已登陆', {
+            username: thisUserAllInfo.username,
+            name: thisUserAllInfo.name,
+            rank: thisUserAllInfo.rank
+        });
+
+        res.json(result);
+
+    }else {
+        let result = new ResObject(0, '您还没有登陆，请登录后再试...');
+
+        res.json(result);
+
+    }
+});
+
 module.exports = router;
