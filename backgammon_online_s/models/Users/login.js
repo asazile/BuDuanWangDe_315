@@ -1,3 +1,5 @@
+const fs = require('fs');
+
 const connPool = require('../Common/connPool');
 
 const { LOG } = require('../Usually/LocalConst');
@@ -25,7 +27,7 @@ module.exports = {
 
                 let thisUserAllInfo = rs[0];
 
-                if(thisUserAllInfo) {
+                if(!thisUserAllInfo) {
                     callback(new Error('账号不存在...'));
                     return false;
                 }
@@ -55,7 +57,7 @@ module.exports = {
             conn.query(sql, param, function (err, rs) {
                 conn.release();
 
-                if(err.message.indexOf('PRIMARY') > -1) {
+                if(err && err.message.indexOf('PRIMARY') > -1) {
                     callback(new Error('该账号已被注册...'));
                     return false;
                 }

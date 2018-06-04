@@ -45,6 +45,8 @@
 </template>
 
 <script>
+    import axios from "axios";
+
     export default {
         name: '',
         data() {
@@ -70,8 +72,20 @@
                 if (value === '') {
                     callback(new Error('账号不能为空...'));
                 } else {
-
-                    callback();
+                    axios.post('/checkUsername', {
+                        username: value
+                    })
+                        .then(function (response) {
+                            let res = response.data;
+                            if(res.status) {
+                                callback();
+                            }else {
+                                callback(new Error(res.message));
+                            }
+                        })
+                        .catch(function (error) {
+                            callback(new Error(error.message));
+                        });
                 }
             };
 
@@ -159,7 +173,18 @@
             rigisterForm(formName) {
                 this.$refs[formName].validate((valid) => {
                     if (valid) {
-                        alert('register!');
+                        axios.post('/rigister', this.form2)
+                            .then(function (response) {
+                                let res = response.data;
+                                if(res.status) {
+                                    alert(res.message);
+                                }else {
+                                    alert(res.message);
+                                }
+                            })
+                            .catch(function (error) {
+                                console.log(error);
+                            });
                     } else {
                         console.log('error register!!');
                     }
