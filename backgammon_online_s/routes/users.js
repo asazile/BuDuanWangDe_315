@@ -45,7 +45,7 @@ router.post('/rigister', function (req, res, next) {
             return false;
         }
 
-
+        res.redirect(307, '/users/login');
     });
 });
 
