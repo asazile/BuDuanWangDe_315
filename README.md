@@ -1,6 +1,6 @@
-# backgammon_online
+# Backgammon_online
 
-### team work
+### Team work
 * 王斌：需求分析记录、测试
 * 余智：系统原型设计、测试
 * 王晓飞：交互设计、测试
