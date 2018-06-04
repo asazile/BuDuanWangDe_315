@@ -162,7 +162,18 @@
             submitForm(formName) {
                 this.$refs[formName].validate((valid) => {
                     if (valid) {
-                        alert('submit!');
+                        axios.post('/login', this.form1)
+                            .then(function (response) {
+                                let res = response.data;
+                                if(res.status) {
+                                    alert(res.message);
+                                }else {
+                                    alert(res.message);
+                                }
+                            })
+                            .catch(function (error) {
+                                console.log(error);
+                            });
                     } else {
                         console.log('error submit!!');
                         return false;
