@@ -4,6 +4,7 @@ import Router from 'vue-router'
 import axios from "axios";
 
 const Login = () => import('./views/Login.vue');
+
 const Home = () => import('./views/Home.vue');
 
 Vue.use(Router);

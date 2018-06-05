@@ -10,7 +10,7 @@
                                 <el-input v-model="form1.username"></el-input>
                             </el-form-item>
                             <el-form-item label="密码" prop="password">
-                                <el-input v-model="form1.password"></el-input>
+                                <el-input type="password" v-model="form1.password"></el-input>
                             </el-form-item>
                             <el-form-item>
                                 <el-button type="primary" @click="submitForm('form1')">Go -></el-button>
@@ -163,9 +163,24 @@
                 this.$refs[formName].validate((valid) => {
                     if (valid) {
                         axios.post('/login', this.form1)
-                            .then(function (response) {
+                            .then((response) => {
                                 let res = response.data;
                                 if(res.status) {
+                                    this.$store.commit({
+                                        type: 'updateUsername',
+                                        username: res.data.username
+                                    });
+
+                                    this.$store.commit({
+                                        type: 'updateName',
+                                        username: res.data.name
+                                    });
+
+                                    this.$store.commit({
+                                        type: 'updateRank',
+                                        username: res.data.rank
+                                    });
+
                                     alert(res.message);
                                 }else {
                                     alert(res.message);

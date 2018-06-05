@@ -87,13 +87,13 @@ router.get('/checkLogin', function (req, res, next) {
 });
 
 router.get('/loginUserInfo', function (req, res, next) {
-    let userInfo = req.session.userInfo;
+    let userInfo = req.session && req.session.userInfo;
 
     if(userInfo) {
         let result = new ResObject(1, '用户已登陆', {
-            username: thisUserAllInfo.username,
-            name: thisUserAllInfo.name,
-            rank: thisUserAllInfo.rank
+            username: userInfo.username,
+            name: userInfo.name,
+            rank: userInfo.rank
         });
 
         res.json(result);
