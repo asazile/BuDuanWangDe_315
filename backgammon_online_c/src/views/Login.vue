@@ -173,15 +173,16 @@
 
                                     this.$store.commit({
                                         type: 'updateName',
-                                        username: res.data.name
+                                        name: res.data.name
                                     });
 
                                     this.$store.commit({
                                         type: 'updateRank',
-                                        username: res.data.rank
+                                        rank: res.data.rank
                                     });
 
-                                    alert(res.message);
+                                    alert('登陆成功，跳转中...')
+                                    this.$router.push('/home');
                                 }else {
                                     alert(res.message);
                                 }
