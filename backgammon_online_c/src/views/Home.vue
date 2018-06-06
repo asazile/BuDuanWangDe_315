@@ -1,12 +1,16 @@
 <template>
   <div class="home">
     <el-container>
-      <el-header>Header</el-header>
+      <el-header style="padding: 0">
+        <main-header></main-header>
+      </el-header>
       <el-container>
-        <el-aside width="200px">
-          <router-link to="/about">About</router-link>
+        <el-aside style="width: 150px;">
+            <side-bar></side-bar>
         </el-aside>
-        <el-main>Main</el-main>
+        <el-main>
+            <user-info></user-info>
+        </el-main>
       </el-container>
     </el-container>
   </div>
@@ -14,12 +18,16 @@
 
 <script>
 // @ is an alias to /src
-import HelloWorld from '@/components/HelloWorld.vue'
+import MainHeader from '@/components/header/Header.vue'
+import SideBar from '@/components/side_bar/SideBar.vue'
+import UserInfo from '@/components/content/UserInfo.vue'
 
 export default {
   name: 'home',
   components: {
-    HelloWorld
+      MainHeader,
+      SideBar,
+      UserInfo
   }
 }
 </script>

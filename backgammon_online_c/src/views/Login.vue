@@ -10,7 +10,7 @@
                                 <el-input v-model="form1.username"></el-input>
                             </el-form-item>
                             <el-form-item label="密码" prop="password">
-                                <el-input v-model="form1.password"></el-input>
+                                <el-input type="password" v-model="form1.password"></el-input>
                             </el-form-item>
                             <el-form-item>
                                 <el-button type="primary" @click="submitForm('form1')">Go -></el-button>
@@ -162,11 +162,34 @@
             submitForm(formName) {
                 this.$refs[formName].validate((valid) => {
                     if (valid) {
+                        const loading = this.$loading({
+                            lock: true,
+                            text: 'Loading...',
+                            spinner: 'el-icon-loading',
+                            background: 'rgba(0, 0, 0, 0.7)'
+                        });
+
                         axios.post('/login', this.form1)
-                            .then(function (response) {
+                            .then((response) => {
                                 let res = response.data;
                                 if(res.status) {
-                                    alert(res.message);
+                                    this.$store.commit({
+                                        type: 'updateUsername',
+                                        username: res.data.username
+                                    });
+
+                                    this.$store.commit({
+                                        type: 'updateName',
+                                        name: res.data.name
+                                    });
+
+                                    this.$store.commit({
+                                        type: 'updateRank',
+                                        rank: res.data.rank
+                                    });
+
+                                    loading.close();
+                                    this.$router.push('/home');
                                 }else {
                                     alert(res.message);
                                 }
@@ -184,11 +207,34 @@
             rigisterForm(formName) {
                 this.$refs[formName].validate((valid) => {
                     if (valid) {
+                        const loading = this.$loading({
+                            lock: true,
+                            text: 'Loading...',
+                            spinner: 'el-icon-loading',
+                            background: 'rgba(0, 0, 0, 0.7)'
+                        });
+
                         axios.post('/rigister', this.form2)
-                            .then(function (response) {
+                            .then((response) => {
                                 let res = response.data;
                                 if(res.status) {
-                                    alert(res.message);
+                                    this.$store.commit({
+                                        type: 'updateUsername',
+                                        username: res.data.username
+                                    });
+
+                                    this.$store.commit({
+                                        type: 'updateName',
+                                        name: res.data.name
+                                    });
+
+                                    this.$store.commit({
+                                        type: 'updateRank',
+                                        rank: res.data.rank
+                                    });
+
+                                    loading.close();
+                                    this.$router.push('/home');
                                 }else {
                                     alert(res.message);
                                 }
