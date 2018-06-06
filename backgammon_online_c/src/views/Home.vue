@@ -1,15 +1,15 @@
 <template>
   <div class="home">
     <el-container>
-      <el-header>
+      <el-header style="padding: 0">
         <main-header></main-header>
       </el-header>
       <el-container>
-        <el-aside>
-
+        <el-aside style="width: 150px;">
+            <side-bar></side-bar>
         </el-aside>
         <el-main>
-
+            <user-info></user-info>
         </el-main>
       </el-container>
     </el-container>
@@ -18,12 +18,16 @@
 
 <script>
 // @ is an alias to /src
-import MainHeader from '@/components/header/header.vue'
+import MainHeader from '@/components/header/Header.vue'
+import SideBar from '@/components/side_bar/SideBar.vue'
+import UserInfo from '@/components/content/UserInfo.vue'
 
 export default {
   name: 'home',
   components: {
-      MainHeader
+      MainHeader,
+      SideBar,
+      UserInfo
   }
 }
 </script>

@@ -162,6 +162,13 @@
             submitForm(formName) {
                 this.$refs[formName].validate((valid) => {
                     if (valid) {
+                        const loading = this.$loading({
+                            lock: true,
+                            text: 'Loading...',
+                            spinner: 'el-icon-loading',
+                            background: 'rgba(0, 0, 0, 0.7)'
+                        });
+
                         axios.post('/login', this.form1)
                             .then((response) => {
                                 let res = response.data;
@@ -181,7 +188,7 @@
                                         rank: res.data.rank
                                     });
 
-                                    alert('登陆成功，跳转中...')
+                                    loading.close();
                                     this.$router.push('/home');
                                 }else {
                                     alert(res.message);
@@ -200,11 +207,34 @@
             rigisterForm(formName) {
                 this.$refs[formName].validate((valid) => {
                     if (valid) {
+                        const loading = this.$loading({
+                            lock: true,
+                            text: 'Loading...',
+                            spinner: 'el-icon-loading',
+                            background: 'rgba(0, 0, 0, 0.7)'
+                        });
+
                         axios.post('/rigister', this.form2)
-                            .then(function (response) {
+                            .then((response) => {
                                 let res = response.data;
                                 if(res.status) {
-                                    alert(res.message);
+                                    this.$store.commit({
+                                        type: 'updateUsername',
+                                        username: res.data.username
+                                    });
+
+                                    this.$store.commit({
+                                        type: 'updateName',
+                                        name: res.data.name
+                                    });
+
+                                    this.$store.commit({
+                                        type: 'updateRank',
+                                        rank: res.data.rank
+                                    });
+
+                                    loading.close();
+                                    this.$router.push('/home');
                                 }else {
                                     alert(res.message);
                                 }

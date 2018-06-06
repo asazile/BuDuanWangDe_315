@@ -1,7 +1,10 @@
 var express = require('express');
 var router = express.Router();
 
+const fs = require('fs');
+
 const ResObject = require('../models/Usually/ResObject');
+const { LOG } = require('../models/Usually/LocalConst');
 
 const Login = require('../models/Users/Login');
 
@@ -104,6 +107,22 @@ router.get('/loginUserInfo', function (req, res, next) {
         res.json(result);
 
     }
+});
+
+router.post('/loginOut', function (req, res, next) {
+    req.session.destroy(function(err) {
+        if(err) {
+            fs.appendFile(LOG.routersError, `Time: ${new Date().toUTCString()}\n${err.stack}\n`, 'utf8');
+            let result = new ResObject(0, '注销失败，请稍后再试...');
+
+            res.json(result);
+            return false;
+        }
+
+        let result = new ResObject(1, '注销成功...');
+
+        res.json(result);
+    });
 });
 
 module.exports = router;
