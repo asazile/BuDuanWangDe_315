@@ -1,17 +1,16 @@
 <template>
     <el-menu
-            default-active="2"
+            default-active="UserInfo"
             class="el-menu-vertical-demo"
-            @open="handleOpen"
-            @close="handleClose"
+            @select="handleSelect"
             background-color="#545c64"
             text-color="#fff"
             active-text-color="#ffd04b">
-        <el-menu-item index="1">
+        <el-menu-item index="UserInfo">
             <i class="el-icon-menu"></i>
             <span slot="title">个人中心</span>
         </el-menu-item>
-        <el-menu-item index="2">
+        <el-menu-item index="GameCenter">
             <i class="el-icon-news"></i>
             <span slot="title">开始游戏</span>
         </el-menu-item>
@@ -37,11 +36,11 @@
         },
 
         methods: {
-            handleOpen(key, keyPath) {
-                console.log(key, keyPath);
-            },
-            handleClose(key, keyPath) {
-                console.log(key, keyPath);
+            handleSelect(key, keyPath) {
+                this.$store.commit({
+                    type: 'updateCurComponent',
+                    currentComponent: key
+                });
             }
         }
     }

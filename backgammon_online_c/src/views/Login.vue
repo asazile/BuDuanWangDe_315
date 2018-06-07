@@ -7,10 +7,10 @@
                     <el-tab-pane label="登陆">
                         <el-form ref="form1" :model="form1" :rules="rules1" size="small">
                             <el-form-item label="账号" prop="username">
-                                <el-input v-model="form1.username"></el-input>
+                                <el-input name="username" v-model="form1.username"></el-input>
                             </el-form-item>
                             <el-form-item label="密码" prop="password">
-                                <el-input type="password" v-model="form1.password"></el-input>
+                                <el-input name="password" type="password" v-model="form1.password"></el-input>
                             </el-form-item>
                             <el-form-item>
                                 <el-button type="primary" @click="submitForm('form1')">Go -></el-button>
@@ -171,6 +171,8 @@
 
                         axios.post('/login', this.form1)
                             .then((response) => {
+                                loading.close();
+
                                 let res = response.data;
                                 if(res.status) {
                                     this.$store.commit({
@@ -188,10 +190,11 @@
                                         rank: res.data.rank
                                     });
 
-                                    loading.close();
                                     this.$router.push('/home');
                                 }else {
-                                    alert(res.message);
+                                    this.$confirm(res.message, '提示', {
+                                        type: 'error'
+                                    });
                                 }
                             })
                             .catch(function (error) {
@@ -216,6 +219,8 @@
 
                         axios.post('/rigister', this.form2)
                             .then((response) => {
+                                loading.close();
+
                                 let res = response.data;
                                 if(res.status) {
                                     this.$store.commit({
@@ -233,10 +238,15 @@
                                         rank: res.data.rank
                                     });
 
-                                    loading.close();
-                                    this.$router.push('/home');
+                                    this.$confirm(res.message, '提示', {
+                                        type: 'success'
+                                    }).then(() => {
+                                        this.$router.push('/home');
+                                    });
                                 }else {
-                                    alert(res.message);
+                                    this.$confirm(res.message, '提示', {
+                                        type: 'error'
+                                    });
                                 }
                             })
                             .catch(function (error) {

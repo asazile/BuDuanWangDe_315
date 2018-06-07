@@ -69,6 +69,8 @@
                                 console.log(error);
                             });
                         break;
+                    default:
+                        break;
                 }
             }
         }

@@ -97,5 +97,30 @@ module.exports = {
                 callback(null, usernameExist);
             });
         });
+    },
+
+    changePassword: function (id, password, callback) {
+        let pool = connPool();
+
+        pool.getConnection(function (err, conn) {
+            if(err) {
+                callback(err);
+                return false;
+            }
+
+            let sql = 'UPDATE user SET password = ? WHERE id = ?;';
+            let param = [password, id];
+            conn.query(sql, param, function (err, rs) {
+                conn.release();
+
+                if(err) {
+                    fs.appendFile(LOG.modelsError, `Time: ${new Date().toUTCString()}\n${err.stack}\n`, 'utf8');
+                    callback(new Error('数据库错误...请稍后再试'));
+                    return false;
+                }
+
+                callback(null);
+            });
+        });
     }
 };

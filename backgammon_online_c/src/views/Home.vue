@@ -9,7 +9,7 @@
             <side-bar></side-bar>
         </el-aside>
         <el-main>
-            <user-info></user-info>
+            <component v-bind:is="currentComponent"></component>
         </el-main>
       </el-container>
     </el-container>
@@ -22,12 +22,33 @@ import MainHeader from '@/components/header/Header.vue'
 import SideBar from '@/components/side_bar/SideBar.vue'
 import UserInfo from '@/components/content/UserInfo.vue'
 
+const GameCenter = () => import('@/components/game/GameCenter.vue');
+
 export default {
-  name: 'home',
-  components: {
-      MainHeader,
-      SideBar,
-      UserInfo
-  }
+    name: 'home',
+    components: {
+        MainHeader,
+        SideBar,
+        UserInfo,
+        GameCenter
+    },
+
+    data() {
+        return {
+            currentComponent: 'UserInfo'
+        }
+    },
+
+    computed: {
+        getCurComponent() {
+            return this.$store.state.currentComponent;
+        }
+    },
+
+    watch: {
+        getCurComponent: function(to, from) {
+            this.currentComponent = to;
+        }
+    }
 }
 </script>

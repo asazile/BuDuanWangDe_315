@@ -8,6 +8,7 @@ export default new Vuex.Store({
         username: '',
         name: '',
         rank: -1,
+        currentComponent: 'UserInfo'
     },
 
     mutations: {
@@ -21,6 +22,10 @@ export default new Vuex.Store({
 
         updateRank (state, data) {
             state.rank = data.rank;
+        },
+
+        updateCurComponent (state, data) {
+            state.currentComponent = data.currentComponent;
         }
     },
 
