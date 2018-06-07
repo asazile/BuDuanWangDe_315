@@ -1,9 +1,9 @@
-CREATE DATABASE buduanwangde315;		/*´´½¨buduanwangde315Êý¾Ý¿â*/
+CREATE DATABASE buduanwangde315;		/*åˆ›å»ºBuDuanWangDe_315æ•°æ®åº“*/
 
-CREATE TABLE IF NOT EXISTS `user` (   		/*´´½¨user±í*/
-    id SMALLINT UNSIGNED KEY AUTO_INCREMENT,   /*idÓÃÎÞ·ûºÅÕýÊý£¬id×ÔÔö¼Ó*/
-    username VARCHAR(32) UNIQUE NOT NULL,	/*ÓÃ»§ÃûÎ¨Ò»*/
-    name VARCHAR(32) NOT NULL,          /*êÇ³Æ*/
-    password VARCHAR(32) NOT NULL,	/*ÃÜÂë*/
-    rank SMALLINT UNSIGNED NOT NULL DEFAULT 0  /*ÅÅÃû ·Ö */
+CREATE TABLE IF NOT EXISTS `user` (   		
+    id SMALLINT UNSIGNED KEY AUTO_INCREMENT,   /*idæ— ç¬¦å·æ•°ä»¥å¢žåŠ å¯è¡¨ç¤ºçš„èŒƒå›´/
+    username VARCHAR(32) UNIQUE NOT NULL,	/*ç”¨æˆ·å*/
+    name VARCHAR(32) NOT NULL,          /*æ˜µç§°/
+    password VARCHAR(32) NOT NULL,	/*ç™»é™†å¯†ç */
+    rank SMALLINT UNSIGNED NOT NULL DEFAULT 0  /*æŽ’ååˆ†*/
 )ENGINE=INNODB CHARSET=UTF8;
