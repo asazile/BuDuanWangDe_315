@@ -23,6 +23,7 @@ import SideBar from '@/components/side_bar/SideBar.vue'
 import UserInfo from '@/components/content/UserInfo.vue'
 
 const GameCenter = () => import('@/components/game/GameCenter.vue');
+const GameTest = () => import('@/components/game/GameTest.vue');
 
 export default {
     name: 'home',
@@ -30,7 +31,8 @@ export default {
         MainHeader,
         SideBar,
         UserInfo,
-        GameCenter
+        GameCenter,
+        GameTest
     },
 
     data() {
