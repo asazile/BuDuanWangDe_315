@@ -54,13 +54,7 @@
                 if (value === '') {
                     callback(new Error('请输入账号...'));
                 } else {
-                    var uPattern = /^[a-zA-Z][a-zA-Z0-9]{6,19}$/;
-
-                    if (uPattern.test(value)) {
-                        callback();
-                    }else {
-                        callback(new Error('账号需字母开头长度7-20，仅包含字母数字_'));
-                    }
+                    callback();
                 }
             };
 
@@ -68,14 +62,7 @@
                 if (value === '') {
                     callback(new Error('请输入密码...'));
                 } else {
-                    var regx =/^(?!([a-zA-Z]+|\d+)$)[a-zA-Z\d]{6,20}$/;
-
-                    if(value.match(regx)==null) {
-                        callback(new Error('密码必须为6-20位数字和字母组合'));
-
-                    }else {
-                        callback();
-                    }
+                    callback();
                 }
             };
 
@@ -83,20 +70,28 @@
                 if (value === '') {
                     callback(new Error('账号不能为空...'));
                 } else {
-                    axios.post('/checkUsername', {
-                        username: value
-                    })
-                        .then(function (response) {
-                            let res = response.data;
-                            if(res.status) {
-                                callback();
-                            }else {
-                                callback(new Error(res.message));
-                            }
+
+                    var uPattern = /^[a-zA-Z][a-zA-Z0-9]{6,19}$/;
+
+                    if (uPattern.test(value)) {
+                        axios.post('/checkUsername', {
+                            username: value
                         })
-                        .catch(function (error) {
-                            callback(new Error(error.message));
-                        });
+                            .then(function (response) {
+                                let res = response.data;
+                                if(res.status) {
+                                    callback();
+                                }else {
+                                    callback(new Error(res.message));
+                                }
+                            })
+                            .catch(function (error) {
+                                callback(new Error(error.message));
+                            });
+
+                    }else {
+                        callback(new Error('账号需字母开头长度7-20，仅包含字母数字_'));
+                    }
                 }
             };
 
@@ -113,10 +108,18 @@
                 if (value === '') {
                     callback(new Error('密码不能为空...'));
                 } else {
-                    if (this.form2.checkPassword !== '') {
-                        this.$refs.form2.validateField('checkPassword');
+                    var regx =/^(?!([a-zA-Z]+|\d+)$)[a-zA-Z\d]{6,20}$/;
+
+                    if(value.match(regx)==null) {
+                        callback(new Error('密码必须为6-20位数字和字母组合'));
+
+                    }else {
+                        if (this.form2.checkPassword !== '') {
+                            this.$refs.form2.validateField('checkPassword');
+                        }
+                        
+                        callback();
                     }
-                    callback();
                 }
             };
 
