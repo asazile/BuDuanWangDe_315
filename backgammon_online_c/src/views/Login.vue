@@ -63,8 +63,14 @@
                 if (value === '') {
                     callback(new Error('请输入密码...'));
                 } else {
+                    var regx =/^(?!([a-zA-Z]+|\d+)$)[a-zA-Z\d]{6,20}$/;
 
-                    callback();
+                    if(value.match(regx)==null) {
+                        callback(new Error('密码必须为6-20位数字和字母组合'));
+
+                    }else {
+                        callback();
+                    }
                 }
             };
 
