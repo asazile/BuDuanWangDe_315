@@ -54,8 +54,13 @@
                 if (value === '') {
                     callback(new Error('请输入账号...'));
                 } else {
+                    var uPattern = /^[a-zA-Z][a-zA-Z0-9]{6,19}$/;
 
-                    callback();
+                    if (uPattern.test(value)) {
+                        callback();
+                    }else {
+                        callback(new Error('账号需字母开头长度7-20，仅包含字母数字_'));
+                    }
                 }
             };
 
