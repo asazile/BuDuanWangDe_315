@@ -41,16 +41,63 @@
                     <template slot="title">
                         <b style="margin-right: 10px;">匹配模式</b> <i class="header-icon el-icon-info"></i>
                     </template>
-                    <div>与现实生活一致：与现实生活的流程、逻辑保持一致，遵循用户习惯的语言和概念；</div>
-                    <div>在界面中一致：所有的元素和结构需保持一致，比如：设计样式、图标和文本、元素的位置等。</div>
+
+                    <el-table
+                            :data="MGameInfoItems"
+                            style="width: 100%"
+                            :row-class-name="tableRowClassName">
+
+                        <el-table-column
+                                prop="user"
+                                label="我方">
+                        </el-table-column>
+                        <el-table-column
+                                prop="adversary"
+                                label="敌方">
+                        </el-table-column>
+                        <el-table-column
+                                prop="result"
+                                label="游戏结果">
+                        </el-table-column>
+                        <el-table-column
+                                prop="time"
+                                label="游戏时间">
+                        </el-table-column>
+
+                    </el-table>
                 </el-collapse-item>
 
                 <el-collapse-item name="qualifyingGame">
                     <template slot="title">
                         <b style="margin-right: 10px;">排位模式</b> <i class="header-icon el-icon-info"></i>
                     </template>
-                    <div>控制反馈：通过界面样式和交互动效让用户可以清晰的感知自己的操作；</div>
-                    <div>页面反馈：操作后，通过页面元素的变化清晰地展现当前状态。</div>
+
+                    <el-table
+                            :data="QGameInfoItems"
+                            style="width: 100%"
+                            :row-class-name="tableRowClassName">
+
+                        <el-table-column
+                                prop="user"
+                                label="我方"
+                                width="180">
+                        </el-table-column>
+                        <el-table-column
+                                prop="adversary"
+                                label="敌方"
+                                width="180">
+                        </el-table-column>
+                        <el-table-column
+                                prop="time"
+                                label="游戏时间">
+                        </el-table-column>
+                        <el-table-column
+                                prop="result"
+                                label="游戏结果">
+                        </el-table-column>
+
+                    </el-table>
+
                 </el-collapse-item>
 
             </el-collapse>
@@ -102,7 +149,69 @@
                     checkPassword: [
                         { validator: validateCheckPassword2, trigger: 'blur' }
                     ]
-                }
+                },
+
+                MGameInfoItems: [
+                    {
+                        id: 22,
+                        user: 'Daoerche',
+                        adversary: 'WangQingJun',
+                        result: 'Win',
+                        time: '2018-06-10'
+                    },
+                    {
+                        id: 22,
+                        user: 'Daoerche',
+                        adversary: 'WangQingJun',
+                        result: 'Defeat',
+                        time: '2018-06-10'
+                    },
+                    {
+                        id: 22,
+                        user: 'Daoerche',
+                        adversary: 'WangQingJun',
+                        result: 'Defeat',
+                        time: '2018-06-10'
+                    },
+                    {
+                        id: 22,
+                        user: 'Daoerche',
+                        adversary: 'WangQingJun',
+                        result: 'Win',
+                        time: '2018-06-10'
+                    }
+                ],
+
+                QGameInfoItems: [
+                    {
+                        id: 22,
+                        user: 'TXC',
+                        adversary: 'WangQingJun',
+                        result: 'Win',
+                        time: '2018-06-10'
+                    },
+                    {
+                        id: 22,
+                        user: 'TXC',
+                        adversary: 'WangQingJun',
+                        result: 'Win',
+                        time: '2018-06-10'
+                    },
+                    {
+                        id: 22,
+                        user: 'TXC',
+                        adversary: 'WangQingJun',
+                        result: 'Defeat',
+                        time: '2018-06-10'
+                    },
+                    {
+                        id: 22,
+                        user: 'TXC',
+                        adversary: 'WangQingJun',
+                        result: 'Win',
+                        time: '2018-06-10'
+                    }
+                ]
             }
         },
 
@@ -162,6 +271,15 @@
                         }
                     });
                 }
+            },
+
+            tableRowClassName({row, rowIndex}) {
+                if (row.result === 'Win') {
+                    return 'success-row';
+                } else if (row.result === 'Defeat') {
+                    return 'warning-row';
+                }
+                return '';
             }
         }
     }
@@ -188,5 +306,12 @@
     }
     .el-tabs__item:hover {
         color: rgb(84, 92, 100);
+    }
+    .el-table .warning-row {
+        background: rgb(255, 194, 142);
+    }
+
+    .el-table .success-row {
+        background: rgb(161, 207, 255);
     }
 </style>

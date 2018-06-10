@@ -10,7 +10,7 @@
                 <el-form-item label="游戏音效">
                     <el-switch v-model="form.gameMusic"></el-switch>
                 </el-form-item>
-                
+
                 <h5>其他设置：</h5>
                 <el-form-item>
                     <el-button type="warning" plain @click="onSubmit">保存</el-button>
