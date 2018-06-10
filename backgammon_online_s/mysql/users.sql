@@ -5,5 +5,6 @@ CREATE TABLE IF NOT EXISTS `user` (
     username VARCHAR(32) UNIQUE NOT NULL,	/*用户名*/
     name VARCHAR(32) NOT NULL,          /*昵称/
     password VARCHAR(32) NOT NULL,	/*登陆密码*/
-    rank SMALLINT UNSIGNED NOT NULL DEFAULT 0  /*排名分*/
+    rank SMALLINT UNSIGNED NOT NULL DEFAULT 0,  /*排名分*/
+    firstGame BOOL DEFAULT 1
 )ENGINE=INNODB CHARSET=UTF8;

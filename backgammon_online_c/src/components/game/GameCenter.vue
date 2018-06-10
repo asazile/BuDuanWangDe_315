@@ -51,6 +51,38 @@
             }
         },
 
+        mounted: function () {
+            axios.post('/users/checkFirstGame')
+                .then((response) => {
+                    let res = response.data;
+
+                    if(res.status) {
+                        this.$confirm('您是第一次进入游戏，请问需要试玩体验下么？', '新手 & 高手', {
+                            confirmButtonText: '确定',
+                            cancelButtonText: '取消',
+                            type: 'info'
+                        }).then(() => {
+                            this.gameTest();
+                        });
+
+                        axios.post('/users/updateFirstGame')
+                            .then((response) => {
+                                let res = response.data;
+
+                                if (res.status) {
+                                    console.log(res.message);
+
+                                } else {
+                                    console.log(res.message);
+                                }
+                            });
+                    }
+                })
+                .catch(function (error) {
+                    console.log(error);
+                });
+        },
+
         methods: {
             gameTest () {
                 this.$store.commit({
