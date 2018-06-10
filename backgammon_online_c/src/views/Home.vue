@@ -20,10 +20,12 @@
 // @ is an alias to /src
 import MainHeader from '@/components/header/Header.vue'
 import SideBar from '@/components/side_bar/SideBar.vue'
-import UserInfo from '@/components/content/UserInfo.vue'
+import UserInfo from '@/components/user/UserInfo.vue'
 
 const GameCenter = () => import('@/components/game/GameCenter.vue');
 const GameTest = () => import('@/components/game/GameTest.vue');
+const Setting = () => import('@/components/setting/Setting.vue');
+const RankInfo = () => import('@/components/rankInfo/RankInfo.vue');
 
 export default {
     name: 'home',
@@ -32,7 +34,9 @@ export default {
         SideBar,
         UserInfo,
         GameCenter,
-        GameTest
+        GameTest,
+        Setting,
+        RankInfo
     },
 
     data() {

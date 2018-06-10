@@ -14,11 +14,11 @@
             <i class="el-icon-news"></i>
             <span slot="title">开始游戏</span>
         </el-menu-item>
-        <el-menu-item index="3">
+        <el-menu-item index="RankInfo">
             <i class="el-icon-sort"></i>
             <span slot="title">排名查看</span>
         </el-menu-item>
-        <el-menu-item index="4">
+        <el-menu-item index="Setting">
             <i class="el-icon-setting"></i>
             <span slot="title">通用设置</span>
         </el-menu-item>
