@@ -137,7 +137,27 @@
             },
 
             startTiming () {
-                this.timing = '00:01';
+                if (this.timer) return false;
+
+                // do someThing...          
+                let second = 0,minute = 0;
+
+                function t() {
+                    let currentTime = '';
+                    if(++second == 60){
+                        minute ++;
+                        second = 0;
+                    }
+                    currentTime += minute<10?"0"+minute:minute;
+                    currentTime += ":";
+                    currentTime += second<10?"0"+second:second;
+
+                    this.timing = currentTime;
+
+                    this.timer = setTimeout(t, 1000);
+                }
+
+                t();
             },
 
             endTiming () {
