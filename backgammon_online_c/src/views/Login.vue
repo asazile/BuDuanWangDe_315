@@ -99,8 +99,16 @@
                 if (value === '') {
                     callback(new Error('昵称不能为空...'));
                 } else {
+                    let patrn=/[`~!@#$%^&*()+<>-?:"{},.\/;'[\]]}/im; 
+                    let regCn = /[·！#￥（——）：；“”‘、，|《。》？、【】[\]]/im;
+                    let regAn = /^\d{1,20}$/;
 
-                    callback();
+                    if (patrn.test(value) || regCn.test(value) || !regAn.test(value)) {            
+                        callback(new Error('昵称需为长度不超过20位且不包含特殊字符...'));
+
+                    } else {
+                        callback();
+                    }  
                 }
             };
 
