@@ -1,7 +1,6 @@
 <template>
     <div>
         <h1 style="text-align: center"><i class="el-icon-news"></i> Game Center</h1>
-        <h4 style="height: 22px; padding: 0 20px; text-align: right;"><span v-show="timing !== ''"><i class="el-icon-time" style="margin-right: 10px;"></i> <b>{{ timing }}</b></span></h4>
 
         <div class="game-container">
             <div class="game-item">
@@ -10,7 +9,7 @@
                     <div style="padding: 14px;">
                         <h3>匹配模式</h3>
                         <div class="bottom clearfix">
-                            <el-button type="warning" plain class="button" @click="startGame('matching')">{{ btnGameMatching }}</el-button>
+                            <el-button type="warning" plain class="button" @click="startGame('matching')" :disabled="getIsInGame">开始游戏</el-button>
                         </div>
                     </div>
                 </el-card>
@@ -23,7 +22,7 @@
                         <h3>排位模式</h3>
 
                         <div class="bottom clearfix">
-                            <el-button type="warning" plain class="button" @click="startGame('qualifying')">{{ btnGameQualifying }}</el-button>
+                            <el-button type="warning" plain class="button" @click="startGame('qualifying')" :disabled="getIsInGame">开始游戏</el-button>
                         </div>
                     </div>
                 </el-card>
@@ -31,8 +30,26 @@
         </div>
 
         <div class="game-test">
-            <el-button type="warning" plain round style="padding-left: 35px;" @click="gameTest">试玩一下 <i class="el-icon-arrow-right"></i></el-button>
+            <el-button type="warning" plain round style="padding-left: 35px;" @click="gameTest" :disabled="getIsInGame">试玩一下 <i class="el-icon-arrow-right"></i></el-button>
         </div>
+
+        <el-dialog
+                :title="gameMode"
+                :visible.sync="dialogVisible"
+                width="60%"
+                :show-close="false"
+                :close-on-click-modal="false">
+
+            <div style="text-align: center">
+                <h3>匹配中，请稍后...</h3>
+                <h4 v-show="timing !== ''"><i class="el-icon-time" style="margin-right: 10px;"></i> <b>{{ timing }}</b></h4>
+            </div>
+
+            <span slot="footer" class="dialog-footer">
+                <el-button @click="cancelGame">取 消</el-button>
+                <el-button type="warning" plain>确 定</el-button>
+            </span>
+        </el-dialog>
     </div>
 </template>
 
@@ -46,8 +63,14 @@
             return {
                 timing: '',
                 timer: null,
-                btnGameMatching: '开始游戏',
-                btnGameQualifying: '开始游戏'
+                dialogVisible: false,
+                gameMode: ''
+            }
+        },
+
+        computed: {
+            getIsInGame () {
+                return this.$store.state.isInGame;
             }
         },
 
@@ -92,12 +115,25 @@
             },
 
             startGame (gameType) {
-                let btnGameName = 'btnGame' + gameType[0].toUpperCase() + gameType.substring(1);
+                this.$store.commit({
+                    type: 'updateIsInGame',
+                    isInGame: true
+                });
 
+                this.gameMode = gameType === 'matching' ? '匹配模式' : '排位模式';
+
+                this.dialogVisible = true;
                 this.startTiming();
-                this[btnGameName] = '匹配中...';
 
+            },
 
+            cancelGame () {
+                this.$store.commit({
+                    type: 'updateIsInGame',
+                    isInGame: false
+                });
+
+                this.dialogVisible = false;
             },
 
             startTiming () {
