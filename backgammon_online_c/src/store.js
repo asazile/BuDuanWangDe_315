@@ -8,7 +8,8 @@ export default new Vuex.Store({
         username: '',
         name: '',
         rank: -1,
-        currentComponent: 'UserInfo'
+        currentComponent: 'UserInfo',
+        isInGame: false
     },
 
     mutations: {
@@ -26,6 +27,10 @@ export default new Vuex.Store({
 
         updateCurComponent (state, data) {
             state.currentComponent = data.currentComponent;
+        },
+
+        updateIsInGame (state, data) {
+            state.isInGame = data.isInGame;
         }
     },
 
