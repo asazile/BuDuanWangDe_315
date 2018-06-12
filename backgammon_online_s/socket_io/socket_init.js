@@ -1,18 +1,32 @@
-const game = require('./nameSpace/game');
+//const matching = require('./nameSpace/matching');
+const qualifying = require('./nameSpace/qualifying');
 
 module.exports = function (io) {
-    /**
-     * multiple namespace
-     */
-    const gameNameSpace = io.of('/game');
-
-    /**
-     * mount namespace
-     */
-    game(gameNameSpace);
 
     /**
      * io operate
      */
 
+    io.origins((origin, callback) => {
+        if (origin !== 'http://localhost:8080/' && origin !== 'http://123.206.175.49:3000/') {
+            return callback('origin not allowed', false);
+        }
+        callback(null, true);
+    });
+
+
+    /**
+     * multiple namespace
+     */
+
+    //const matchingNameSpace = io.of('/matching');
+    const qualifyingNameSpace = io.of('/qualifying');
+
+
+    /**
+     * mount namespace
+     */
+
+    //matching(matchingNameSpace);
+    qualifying(qualifyingNameSpace);
 };

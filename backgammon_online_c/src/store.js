@@ -5,11 +5,13 @@ Vue.use(Vuex);
 
 export default new Vuex.Store({
     state: {
+        id: -1,
         username: '',
         name: '',
         rank: -1,
         currentComponent: 'UserInfo',
-        isInGame: false
+        isInGame: false,
+        socket: null
     },
 
     mutations: {
@@ -31,6 +33,15 @@ export default new Vuex.Store({
 
         updateIsInGame (state, data) {
             state.isInGame = data.isInGame;
+        },
+
+        createSocket (state, data) {
+            state.socket = data.socket;
+        },
+
+        closeSocket (state, data) {
+            state.socket.close();
+            state.socket = data.socket;
         }
     },
 

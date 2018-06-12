@@ -41,20 +41,22 @@
                 :close-on-click-modal="false">
 
             <div style="text-align: center">
-                <h3>匹配中，请稍后...</h3>
+                <h3>{{ matchingInfo }}</h3>
                 <h4 v-show="timing !== ''"><i class="el-icon-time" style="margin-right: 10px;"></i> <b>{{ timing }}</b></h4>
+                <h4 v-if="matchName">{{ getName }} VS {{ matchName }}</h4>
             </div>
 
             <span slot="footer" class="dialog-footer">
                 <el-button @click="cancelGame">取 消</el-button>
-                <el-button type="warning" plain>确 定</el-button>
+                <el-button type="warning" plain v-if="matchName">确 定</el-button>
             </span>
         </el-dialog>
     </div>
 </template>
 
 <script>
-    import axios from 'axios'
+    import axios from 'axios';
+    import io from 'socket.io-client';
 
     export default {
         name: '',
@@ -64,13 +66,31 @@
                 timing: '',
                 timer: null,
                 dialogVisible: false,
-                gameMode: ''
+                gameMode: '',
+                matchingInfo: '匹配中，请稍后...',
+                matchName: ''
             }
         },
 
         computed: {
             getIsInGame () {
                 return this.$store.state.isInGame;
+            },
+
+            getUsername () {
+                return this.$store.state.username;
+            },
+
+            getName () {
+                return this.$store.state.name;
+            },
+
+            getRank () {
+                return this.$store.state.rank;
+            },
+
+            getSocket () {
+                return this.$store.state.socket;
             }
         },
 
@@ -125,6 +145,18 @@
                 this.dialogVisible = true;
                 this.startTiming();
 
+                this.$store.commit({
+                    type: 'createSocket',
+                    socket: io(`/${gameType}?username=${this.getUsername}&rank=${this.getRank}&name=${this.getName}`)
+                });
+
+                this.getSocket.on('matched', (data) => {
+                    let matchName = data.matchName;
+
+                    this.matchingInfo = '匹配成功';
+                    this.matchName = matchName;
+                    this.endTiming();
+                });
             },
 
             cancelGame () {
@@ -133,7 +165,15 @@
                     isInGame: false
                 });
 
+                this.$store.commit({
+                    type: 'closeSocket',
+                    socket: null
+                });
+
+                this.matchingInfo = '匹配中，请稍后...';
+                this.matchName = '';
                 this.dialogVisible = false;
+                this.endTiming();
             },
 
             startTiming () {
@@ -142,9 +182,10 @@
                 // do someThing...          
                 let second = 0,minute = 0;
 
+                let _this = this;
                 function t() {
                     let currentTime = '';
-                    if(++second == 60){
+                    if(++second === 60){
                         minute ++;
                         second = 0;
                     }
@@ -152,15 +193,17 @@
                     currentTime += ":";
                     currentTime += second<10?"0"+second:second;
 
-                    this.timing = currentTime;
+                    _this.timing = currentTime;
 
-                    this.timer = setTimeout(t, 1000);
+                    _this.timer = setTimeout(t, 1000);
                 }
 
                 t();
             },
 
             endTiming () {
+                clearTimeout(this.timer);
+                this.timer = null;
                 this.timing = '';
             }
         }
