@@ -22,3 +22,7 @@ backgammon_online_c/.idea
 *.njsproj
 *.sln
 *.sw*
+
+# WangBin
+~$quirement analysis.docx
+~WRL0005.tmp
