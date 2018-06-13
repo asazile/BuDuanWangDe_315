@@ -5,7 +5,7 @@
                 <el-tabs type="border-card" style="margin-top: 50px;">
 
                     <el-tab-pane label="登陆">
-                        <el-form ref="form1" :model="form1" :rules="rules1" size="small">
+                        <el-form ref="form1" :model="form1" :rules="rules1" size="small" @keyup.enter.native="submitForm('form1')">
                             <el-form-item label="账号" prop="username">
                                 <el-input name="username" v-model="form1.username"></el-input>
                             </el-form-item>
@@ -19,7 +19,7 @@
                     </el-tab-pane>
 
                     <el-tab-pane label="注册">
-                        <el-form ref="form2" :model="form2" :rules="rules2" size="small" status-icon>
+                        <el-form ref="form2" :model="form2" :rules="rules2" size="small" status-icon @keyup.enter.native="rigisterForm('form2')">
                             <el-form-item label="账号" prop="username">
                                 <el-input v-model="form2.username"></el-input>
                             </el-form-item>

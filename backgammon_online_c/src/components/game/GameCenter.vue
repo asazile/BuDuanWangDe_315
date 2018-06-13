@@ -43,12 +43,12 @@
             <div style="text-align: center">
                 <h3>{{ matchingInfo }}</h3>
                 <h4 v-show="timing !== ''"><i class="el-icon-time" style="margin-right: 10px;"></i> <b>{{ timing }}</b></h4>
-                <h4 v-if="matchName">{{ getName }} VS {{ matchName }}</h4>
+                <h4 v-if="matchName"><i class="el-icon-success" style="color: cornflowerblue;" v-show="meReady"></i> {{ getName }} VS {{ matchName }} <i class="el-icon-success" style="color: cornflowerblue;" v-show="youReady"></i></h4>
             </div>
 
             <span slot="footer" class="dialog-footer">
                 <el-button @click="cancelGame">取 消</el-button>
-                <el-button type="warning" plain v-if="matchName">确 定</el-button>
+                <el-button type="warning" plain v-if="matchName" @click="interGame">确 定</el-button>
             </span>
         </el-dialog>
     </div>
@@ -68,7 +68,9 @@
                 dialogVisible: false,
                 gameMode: '',
                 matchingInfo: '匹配中，请稍后...',
-                matchName: ''
+                matchName: '',
+                meReady: false,
+                youReady: false
             }
         },
 
@@ -150,12 +152,26 @@
                     socket: io(`/${gameType}?username=${this.getUsername}&rank=${this.getRank}&name=${this.getName}`)
                 });
 
-                this.getSocket.on('matched', (data) => {
-                    let matchName = data.matchName;
+
+                let socket = this.getSocket;
+
+                socket.on('matched', (data) => {
+                    let matchName = data.matchName1 === this.getName ? data.matchName2 : data.matchName1;
 
                     this.matchingInfo = '匹配成功';
                     this.matchName = matchName;
                     this.endTiming();
+                });
+
+                socket.on('ready', () => {
+                    this.youReady = true;
+
+                    if (this.meReady) {
+                        this.$store.commit({
+                            type: 'updateCurComponent',
+                            currentComponent: 'Game'
+                        });
+                    }
                 });
             },
 
@@ -174,6 +190,19 @@
                 this.matchName = '';
                 this.dialogVisible = false;
                 this.endTiming();
+            },
+
+            interGame () {
+                this.endTiming();
+                this.meReady = true;
+                this.getSocket.emit('ready');
+
+                if (this.youReady) {
+                    this.$store.commit({
+                        type: 'updateCurComponent',
+                        currentComponent: 'Game'
+                    });
+                }
             },
 
             startTiming () {

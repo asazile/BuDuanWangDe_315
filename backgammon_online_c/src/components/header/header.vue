@@ -54,6 +54,20 @@
                             background: 'rgba(0, 0, 0, 0.7)'
                         });
 
+                        this.$store.commit({
+                            type: 'closeSocket'
+                        });
+
+                        this.$store.commit({
+                            type: 'updateCurComponent',
+                            currentComponent: 'UserInfo'
+                        });
+
+                        this.$store.commit({
+                            type: 'updateIsInGame',
+                            isInGame: false
+                        });
+
                         axios.post('/loginOut')
                             .then((response) => {
                                 loading.close();

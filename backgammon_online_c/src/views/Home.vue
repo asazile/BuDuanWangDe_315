@@ -24,6 +24,7 @@ import UserInfo from '@/components/user/UserInfo.vue'
 
 const GameCenter = () => import('@/components/game/GameCenter.vue');
 const GameTest = () => import('@/components/game/GameTest.vue');
+const Game = () => import('@/components/game/Game.vue');
 const Setting = () => import('@/components/setting/Setting.vue');
 const RankInfo = () => import('@/components/rankInfo/RankInfo.vue');
 
@@ -35,6 +36,7 @@ export default {
         UserInfo,
         GameCenter,
         GameTest,
+        Game,
         Setting,
         RankInfo
     },

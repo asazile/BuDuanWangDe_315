@@ -10,7 +10,7 @@
             <i class="el-icon-menu"></i>
             <span slot="title">个人中心</span>
         </el-menu-item>
-        <el-menu-item index="GameCenter">
+        <el-menu-item index="GameCenter" :disabled="getIsInGame">
             <i class="el-icon-news"></i>
             <span slot="title">开始游戏</span>
         </el-menu-item>

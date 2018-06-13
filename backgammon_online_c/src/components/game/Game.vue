@@ -1,10 +1,19 @@
 <template>
     <div>
-        <div id="operate">
-            <button class="oper-btn" id="c">user VS computer</button>
-            <button class="oper-btn" id="u">user VS user</button>
-            <button class="oper-btn" id="r">reset</button>
+        <div id="userInfo">
+            <div class="info-main"><p style="height: 100px; line-height: 100px; margin: 0"><b>VS</b></p></div>
 
+            <div class="info-me">
+                <h4>{{ getName }}</h4>
+                <h4>{{ getRank }}</h4>
+            </div>
+
+            <div class="info-you">
+                <h4>{{ matchName }}</h4>
+                <h4>{{ matchRank }}</h4>
+            </div>
+        </div>
+        <div id="operate">
             <span id="chessFlag" class="chess-pieces-black"></span>
         </div>
         <div id="container">
@@ -25,12 +34,28 @@
         name: '',
         data() {
             return {
-                msg: ''
+                msg: '',
+                matchName: '',
+                matchRank: ''
+            }
+        },
+
+        computed: {
+            getName () {
+                return this.$store.state.name;
+            },
+
+            getRank () {
+                return this.$store.state.rank;
+            },
+
+            getSocket () {
+                return this.$store.state.socket;
             }
         },
 
         mounted: function () {
-            this.$nextTick(function () {
+            this.$nextTick(() => {
                 (function () {
                     const backgammon = {
                         cell: `<div class="box"></div>`,
@@ -50,12 +75,6 @@
                         type: document.getElementById("type"),
 
                         info: document.getElementById("info"),
-
-                        ucBtn: document.getElementById("c"),
-
-                        uuBtn: document.getElementById("u"),
-
-                        reBtn: document.getElementById("r"),
 
                         chessFlag: document.getElementById("chessFlag"),
 
@@ -375,28 +394,6 @@
                             // show game type
                             this.showGameType();
 
-                            this.ucBtn.addEventListener("click", (event) => {
-                                if(this.isComputer === true) {
-                                    return false;
-                                }else {
-                                    this.isComputer = true;
-                                    this.resetGame();
-                                }
-                            }, false);
-
-                            this.uuBtn.addEventListener("click", (event) => {
-                                if(this.isComputer === false) {
-                                    return false;
-                                }else {
-                                    this.isComputer = false;
-                                    this.resetGame();
-                                }
-                            }, false);
-
-                            this.reBtn.addEventListener("click", (event) => {
-                                this.resetGame();
-                            }, false);
-
                             this.chess.addEventListener("click", (event) => {
                                 if(this.over) return false;
 
@@ -494,6 +491,18 @@
                     backgammon.init();
 
                 })();
+
+                let socket = this.getSocket;
+
+                socket.on('getUserInfo', (data) => {
+                    this.matchName = data.name;
+                    this.matchRank = data.rank;
+                });
+
+                socket.emit('sendUserInfo', {
+                    name: this.getName,
+                    rank: this.getRank
+                });
             })
         }
     }
@@ -557,6 +566,7 @@
     }
     #operate {
         width: 525px;
+        height: 30px;
         margin: 20px auto;
 
         position: relative;
@@ -566,6 +576,33 @@
         right: 0px;
     }
 
+    #userInfo {
+        width: 525px;
+        height: 100px;
+
+        margin: 10px auto;
+    }
+    .info-main {
+        width: 100%;
+        height: 100px;
+
+        padding: 0 200px;
+        box-sizing: border-box;
+        float: left;
+    }
+    .info-me {
+        width: 200px;
+
+        margin-left: -100%;
+        float: left;
+    }
+    .info-you {
+        text-align: right;
+        width: 200px;
+
+        margin-left: -200px;
+        float: left;
+    }
 
     /*------------------Module---------------------*/
     .oper-btn {

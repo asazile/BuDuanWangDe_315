@@ -4,30 +4,43 @@ module.exports = function (qualifyingNameSpace) {
 
     const poolHander = function (gameWaitPool) {
         for (let i=0, len=gameWaitPool.length; i<len; i++) {
-            let weightValue = thatSocket.weightValue || 20;
+            let thatSocket = gameWaitPool[i].connected && gameWaitPool[i],
+                weightValue = thatSocket.weightValue || 20;
+
+            if (!thatSocket) {
+                gameWaitPool.splice(i, 1);
+                i--;
+                len--;
+                continue;
+            }
 
             if (weightValue < 100) {
                 weightValue += 5;
             }
         }
 
-        let curSocket = gameWaitPool.shift();
+        let socket = gameWaitPool.shift();
 
-        let matchResult = matchGameUser(socket, gameWaitPool);
+        if (socket) {
+            let matchResult = matchGameUser(socket, gameWaitPool);
 
-        if (matchResult) {
-            console.log('match success!');
+            if (matchResult) {
+                console.log('match success!');
 
-            matchResult.curSocket.emit('matched', {
-                matchName: matchResult.thatSocket.handshake.query.name
-            });
+                let roomId = socket.id.split('#')[1] + socket.otherSocket.id.split('#')[1];
 
-            matchResult.thatSocket.emit('matched', {
-                matchName: matchResult.curSocket.handshake.query.name
-            });
+                socket.join(roomId, () => {
+                    socket.otherSocket.join(roomId, () => {
+                        qualifyingNameSpace.to(roomId).emit('matched', {
+                            matchName1: socket.handshake.query.name,
+                            matchName2: socket.otherSocket.handshake.query.name
+                        });
+                    });
+                });
 
-        } else {
-            gameWaitPool.push(curSocket);
+            } else {
+                gameWaitPool.push(socket);
+            }
         }
 
         console.log('one poolHander.');
@@ -51,12 +64,12 @@ module.exports = function (qualifyingNameSpace) {
             let thatRank = thatSocket.handshake.query.rank;
 
             if (Math.abs(Number(curRank)-Number(thatRank)) <= (curSocket.weightValue || 20)) {
-                gameWatePool.splice(i, 1);
+                gameWaitPool.splice(i, 1);
 
-                result = {};
-                result.curSocket = curSocket;
-                result.thatSocket = thatSocket;
-                result.roomId = curSocket.id + thatSocket.id;
+                curSocket.otherSocket = thatSocket;
+                thatSocket.otherSocket = curSocket;
+
+                result = true;
                 break;
             }
         }
@@ -75,18 +88,29 @@ module.exports = function (qualifyingNameSpace) {
         if (matchResult) {
             console.log('match success!');
 
-            matchResult.curSocket.emit('matched', {
-                matchName: matchResult.thatSocket.handshake.query.name
-            });
+            let roomId = socket.id.split('#')[1] + socket.otherSocket.id.split('#')[1];
 
-            matchResult.thatSocket.emit('matched', {
-                matchName: matchResult.curSocket.handshake.query.name
+            socket.join(roomId, () => {
+                socket.otherSocket.join(roomId, () => {
+                    qualifyingNameSpace.to(roomId).emit('matched', {
+                        matchName1: socket.handshake.query.name,
+                        matchName2: socket.otherSocket.handshake.query.name
+                    });
+                });
             });
 
         } else {
             gameWaitPool.push(socket);
         }
 
+        
+        socket.on('ready', () => {
+            socket.otherSocket.emit('ready');
+        });
+
+        socket.on('sendUserInfo', (data) => {
+            socket.otherSocket.emit('getUserInfo', data);
+        });
 
         socket.on('disconnect', function(result){
             gameSocketNum--;
