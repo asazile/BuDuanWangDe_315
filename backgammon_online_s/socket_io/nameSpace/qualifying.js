@@ -29,6 +29,9 @@ module.exports = function (qualifyingNameSpace) {
         } else {
             gameWaitPool.push(curSocket);
         }
+
+        console.log('one poolHander.');
+        setTimeout(poolHander, 1000, gameWaitPool);
     };
 
     const matchGameUser = function (curSocket, gameWaitPool) {
@@ -48,15 +51,20 @@ module.exports = function (qualifyingNameSpace) {
             let thatRank = thatSocket.handshake.query.rank;
 
             if (Math.abs(Number(curRank)-Number(thatRank)) <= (curSocket.weightValue || 20)) {
+                gameWatePool.splice(i, 1);
+
                 result = {};
                 result.curSocket = curSocket;
                 result.thatSocket = thatSocket;
+                result.roomId = curSocket.id + thatSocket.id;
                 break;
             }
         }
 
         return result;
     };
+    
+    poolHander(gameWaitPool);
 
     qualifyingNameSpace.on('connection', function(socket){
         gameSocketNum++;
