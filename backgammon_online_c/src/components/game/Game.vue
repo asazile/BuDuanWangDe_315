@@ -6,11 +6,13 @@
             <div class="info-me">
                 <h4>{{ getName }}</h4>
                 <h4>{{ getRank }}</h4>
+                <el-tag :type="(this.backgammon && this.backgammon.curUser) ? 'warning' : 'info'">{{ myChess }}</el-tag>
             </div>
 
             <div class="info-you">
                 <h4>{{ matchName }}</h4>
                 <h4>{{ matchRank }}</h4>
+                <el-tag :type="(this.backgammon && this.backgammon.curUser) ? 'info' : 'warning'">{{ matchChess }}</el-tag>
             </div>
         </div>
         <div id="operate">
@@ -21,7 +23,6 @@
         </div>
 
         <div>
-            <p><strong id="type"></strong></p>
             <p><strong id="info"></strong></p>
         </div>
     </div>
@@ -34,9 +35,11 @@
         name: '',
         data() {
             return {
-                msg: '',
+                myChess: '',
                 matchName: '',
-                matchRank: ''
+                matchRank: '',
+                matchChess: '',
+                backgammon: null
             }
         },
 
@@ -56,105 +59,202 @@
 
         mounted: function () {
             this.$nextTick(() => {
-                (function () {
-                    const backgammon = {
-                        cell: `<div class="box"></div>`,
+                let _this = this,
+                    socket = this.getSocket;
 
-                        /**
-                         * true --> black
-                         * false --> white
-                         */
-                        curColor: true,
+                const backgammon = {
+                    cell: `<div class="box"></div>`,
 
-                        blackPiece: `<span class="chess-pieces-black"></span>`,
+                    /**
+                     * true --> black
+                     * false --> white
+                     */
+                    curColor: true,
 
-                        whitePiece: `<span class="chess-pieces-white"></span>`,
+                    curUser: false,
 
-                        chess: document.getElementById("chessboard"),
+                    blackPiece: `<span class="chess-pieces-black"></span>`,
 
-                        type: document.getElementById("type"),
+                    whitePiece: `<span class="chess-pieces-white"></span>`,
 
-                        info: document.getElementById("info"),
+                    chess: document.getElementById("chessboard"),
 
-                        chessFlag: document.getElementById("chessFlag"),
+                    info: document.getElementById("info"),
 
-                        /**
-                         * judge game is computer vs user or user vs user
-                         * false --> user vs user
-                         * true --> user vs computer
-                         */
-                        isComputer: false,
+                    chessFlag: document.getElementById("chessFlag"),
 
-                        over: false,
+                    /**
+                     * judge game is computer vs user or user vs user
+                     * false --> user vs user
+                     * true --> user vs computer
+                     */
+                    isComputer: false,
 
-                        addPiece: function (x, y) {
-                            let item = document.createElement("span");
-                            if(this.curColor)
-                                item.classList.add("chess-pieces-black");
-                            else
-                                item.classList.add("chess-pieces-white");
+                    over: false,
 
-                            item.style.left = (-15 + (y*35)) + "px";
-                            item.style.top = (-15 + (x*35)) + "px";
-                            this.chess.appendChild(item);
-                        },
+                    addPiece: function (x, y) {
+                        let item = document.createElement("span");
+                        if(this.curColor)
+                            item.classList.add("chess-pieces-black");
+                        else
+                            item.classList.add("chess-pieces-white");
 
-                        winKindsCount: 672,
+                        item.style.left = (-15 + (y*35)) + "px";
+                        item.style.top = (-15 + (x*35)) + "px";
+                        this.chess.appendChild(item);
+                    },
 
-                        wins: (function () {
-                            let count = 0,
-                                wins = [];
+                    winKindsCount: 672,
 
-                            for(let i=0; i<16; i++) {
-                                wins[i] = [];
-                                for(let j=0; j<16; j++) {
-                                    wins[i][j] = [];
-                                }
+                    wins: (function () {
+                        let count = 0,
+                            wins = [];
+
+                        for(let i=0; i<16; i++) {
+                            wins[i] = [];
+                            for(let j=0; j<16; j++) {
+                                wins[i][j] = [];
                             }
+                        }
 
-                            for(let i=0; i<16; i++) {
-                                for(let j=0; j<12; j++) {
-                                    for(let k=0; k<5; k++) {
-                                        wins[i][j+k][count] = true;
-                                    }
-                                    count++;
+                        for(let i=0; i<16; i++) {
+                            for(let j=0; j<12; j++) {
+                                for(let k=0; k<5; k++) {
+                                    wins[i][j+k][count] = true;
                                 }
+                                count++;
                             }
+                        }
 
-                            for(let i=0; i<16; i++) {
-                                for(let j=0; j<12; j++) {
-                                    for(let k=0; k<5; k++) {
-                                        wins[j+k][i][count] = true;
-                                    }
-                                    count++;
+                        for(let i=0; i<16; i++) {
+                            for(let j=0; j<12; j++) {
+                                for(let k=0; k<5; k++) {
+                                    wins[j+k][i][count] = true;
                                 }
+                                count++;
                             }
+                        }
 
-                            for(let i=0; i<12; i++) {
-                                for(let j=0; j<12; j++) {
-                                    for(let k=0; k<5; k++) {
-                                        wins[i+k][j+k][count] = true;
-                                    }
-                                    count++;
+                        for(let i=0; i<12; i++) {
+                            for(let j=0; j<12; j++) {
+                                for(let k=0; k<5; k++) {
+                                    wins[i+k][j+k][count] = true;
                                 }
+                                count++;
                             }
+                        }
 
-                            for(let i=4; i<16; i++) {
-                                for(let j=0; j<12; j++) {
-                                    for(let k=0; k<5; k++) {
-                                        wins[i-k][j+k][count] = true;
-                                    }
-                                    count++;
+                        for(let i=4; i<16; i++) {
+                            for(let j=0; j<12; j++) {
+                                for(let k=0; k<5; k++) {
+                                    wins[i-k][j+k][count] = true;
                                 }
+                                count++;
                             }
+                        }
 
-                            // 672 kinds
-                            //console.log(count);
+                        // 672 kinds
+                        //console.log(count);
 
-                            return wins;
-                        })(),
+                        return wins;
+                    })(),
 
-                        curChess: (() => {
+                    curChess: (() => {
+                        let arr = [];
+                        for(let i=0; i<16; i++) {
+                            arr[i] = [];
+                            for(let j=0; j<16; j++) {
+                                arr[i][j] = false;
+                            }
+                        }
+
+                        return arr;
+                    })(),
+
+                    myWins: [],
+
+                    myScore: (() => {
+                        let arr = [];
+                        for(let i=0; i<16; i++) {
+                            arr[i] = [];
+                            for(let j=0; j<16; j++) {
+                                arr[i][j] = 0;
+                            }
+                        }
+
+                        return arr;
+                    })(),
+
+                    changeColor: function () {
+                        this.curColor = !this.curColor;
+                        if(this.curColor) {
+                            chessFlag.className = "chess-pieces-black";
+                        }else {
+                            chessFlag.className = "chess-pieces-white";
+                        }
+                    },
+
+                    checkIsWin: function (x, y) {
+                        let flag = false;
+                        for(let k=0; k<this.winKindsCount; k++) {
+                            if(this.wins[x][y][k]) {
+
+                                this.myWins[k] = (this.myWins[k] === undefined) ? 1 : this.myWins[k]+1;
+
+                                if(this.myWins[k] >= 5) {
+                                    this.over = true;
+                                    flag = true;
+                                    break;
+                                }
+
+                            }
+                        }
+                        return flag;
+                    },
+
+                    gameOver: function () {
+                        if(this.curColor) {
+                            info.innerText = "游戏结束，黑棋取得胜利..."
+                        }else {
+                            info.innerText = "游戏结束，白棋取得胜利..."
+                        }
+
+                        if (Boolean(socket.chess) === this.curColor) {
+                            _this.$confirm('Win', '游戏结束', {
+                                confirmButtonText: '确定',
+                                type: 'success',
+                                center: true,
+                                showCancelButton: false
+                            });
+                        } else {
+                            _this.$confirm('Defeat', '游戏结束', {
+                                confirmButtonText: '确定',
+                                type: 'warning',
+                                center: true,
+                                showCancelButton: false
+                            });
+                        }
+                    },
+
+                    removeChessPiece: function () {
+                        let elems = this.chess.children;
+
+                        for(let i=0, len=elems.length; i<len; i++) {
+                            if(elems[i] && elems[i].nodeName === "SPAN") {
+                                elems[i].parentNode.removeChild(elems[i]);
+                                i--;
+                                len--;
+                            }
+                        }
+                    },
+
+                    resetGame: function () {
+                        this.removeChessPiece();
+                        this.info.innerText = "";
+                        this.showGameType();
+                        this.over = false;
+                        this.curColor = true;
+                        this.curChess = (() => {
                             let arr = [];
                             for(let i=0; i<16; i++) {
                                 arr[i] = [];
@@ -164,11 +264,10 @@
                             }
 
                             return arr;
-                        })(),
+                        })();
 
-                        myWins: [],
-
-                        myScore: (() => {
+                        this.myWins = [];
+                        this.myScore = (() => {
                             let arr = [];
                             for(let i=0; i<16; i++) {
                                 arr[i] = [];
@@ -178,331 +277,148 @@
                             }
 
                             return arr;
-                        })(),
+                        })();
 
-                        computerWins: [],
+                        if(this.curColor) {
+                            chessFlag.className = "chess-pieces-black";
+                        }else {
+                            chessFlag.className = "chess-pieces-white";
+                        }
+                    },
 
-                        computerScore: (() => {
-                            let arr = [];
-                            for(let i=0; i<16; i++) {
-                                arr[i] = [];
-                                for(let j=0; j<16; j++) {
-                                    arr[i][j] = 0;
-                                }
+                    init: function () {
+                        // draw chess
+                        let allCell = "";
+                        for(let i=0; i<15*15; i++) {
+                            allCell += this.cell;
+                        }
+                        this.chess.innerHTML = allCell;
+
+                        this.chess.addEventListener("click", (event) => {
+                            if(this.over || !this.curUser) return false;
+
+                            let target = event.target,
+                                x = event.offsetX,
+                                y = event.offsetY,
+                                children = target.parentNode.children,
+                                curIndex = undefined,
+                                chessX = undefined,
+                                chessY = undefined;
+
+                            if(target.className !== "box") return false;
+
+                            //console.log(x, y);
+
+                            for(let i=0, len=children.length; i<len; i++) {
+                                if(children[i] === target)
+                                    curIndex = i;
                             }
 
-                            return arr;
-                        })(),
+                            //console.log(curIndex);
 
-                        changeColor: function () {
-                            this.curColor = !this.curColor;
-                            if(this.curColor) {
-                                chessFlag.className = "chess-pieces-black";
-                            }else {
-                                chessFlag.className = "chess-pieces-white";
-                            }
-                        },
+                            // top left
+                            if(x<=10 && y<=10) {
+                                chessX = Math.floor(curIndex/15);
+                                chessY = curIndex%15;
 
-                        checkIsWin: function (x, y) {
-                            let flag = false;
-                            for(let k=0; k<this.winKindsCount; k++) {
-                                if(this.wins[x][y][k]) {
-                                    // black chess piece
-                                    if(this.curColor) {
-                                        this.myWins[k] = (this.myWins[k] === undefined) ? 1 : this.myWins[k]+1;
+                                // top right
+                            }else if(x>=25 && y<=10) {
+                                chessX = Math.floor(curIndex/15);
+                                chessY = curIndex%15+1;
 
-                                        if(this.myWins[k] >= 5) {
-                                            this.over = true;
-                                            flag = true;
-                                            break;
-                                        }
+                                // bottom left
+                            }else if(x<=10 && y>=25) {
+                                chessX = Math.floor(curIndex/15)+1;
+                                chessY = curIndex%15;
 
-                                        // white chess piece
-                                    }else {
-                                        this.computerWins[k] = (this.computerWins[k] === undefined) ? 1 : this.computerWins[k]+1;
-
-                                        if(this.computerWins[k] >= 5) {
-                                            this.over = true;
-                                            flag = true;
-                                            break;
-                                        }
-                                    }
-                                }
-                            }
-                            return flag;
-                        },
-
-                        showGameType: function () {
-                            if(this.isComputer) {
-                                this.type.innerText = "User VS Computer";
-                            }else {
-                                this.type.innerText = "User VS User";
-                            }
-                        },
-
-                        gameOver: function () {
-                            if(this.curColor) {
-                                info.innerText = "游戏结束，黑棋取得胜利..."
-                            }else {
-                                info.innerText = "游戏结束，白棋取得胜利..."
-                            }
-                        },
-
-                        removeChessPiece: function () {
-                            let elems = this.chess.children;
-
-                            for(let i=0, len=elems.length; i<len; i++) {
-                                if(elems[i] && elems[i].nodeName === "SPAN") {
-                                    elems[i].parentNode.removeChild(elems[i]);
-                                    i--;
-                                    len--;
-                                }
-                            }
-                        },
-
-                        resetGame: function () {
-                            this.removeChessPiece();
-                            this.info.innerText = "";
-                            this.showGameType();
-                            this.over = false;
-                            this.curColor = true;
-                            this.curChess = (() => {
-                                let arr = [];
-                                for(let i=0; i<16; i++) {
-                                    arr[i] = [];
-                                    for(let j=0; j<16; j++) {
-                                        arr[i][j] = false;
-                                    }
-                                }
-
-                                return arr;
-                            })();
-
-                            this.myWins = [];
-                            this.computerWins = [];
-                            this.myScore = (() => {
-                                let arr = [];
-                                for(let i=0; i<16; i++) {
-                                    arr[i] = [];
-                                    for(let j=0; j<16; j++) {
-                                        arr[i][j] = 0;
-                                    }
-                                }
-
-                                return arr;
-                            })();
-
-                            this.computerScore = (() => {
-                                let arr = [];
-                                for(let i=0; i<16; i++) {
-                                    arr[i] = [];
-                                    for(let j=0; j<16; j++) {
-                                        arr[i][j] = 0;
-                                    }
-                                }
-
-                                return arr;
-                            })();
-
-                            if(this.curColor) {
-                                chessFlag.className = "chess-pieces-black";
-                            }else {
-                                chessFlag.className = "chess-pieces-white";
-                            }
-                        },
-
-                        /**
-                         * return computer next should drop point.
-                         * @returns {{x: number, y: number}}
-                         */
-                        computerAI: function () {
-                            // computer AI
-                            for(let i=0; i<16; i++) {
-                                for(let j=0; j<16; j++) {
-                                    // this point not drop
-                                    if(!this.curChess[i][j]) {
-                                        for(let k=0; k<this.winKindsCount; k++) {
-                                            if(this.wins[i][j][k]) {
-                                                // check users
-                                                if(this.myWins[k] === 1) {
-                                                    this.myScore[i][j] += 2;
-                                                }else if(this.myWins[k] === 2) {
-                                                    this.myScore[i][j] += 4;
-                                                }else if(this.myWins[k] === 3) {
-                                                    this.myScore[i][j] += 50;
-                                                }else if(this.myWins[k] === 4) {
-                                                    this.myScore[i][j] += 200;
-                                                }else if(this.myWins[k] >= 5) {
-                                                    this.myScore[i][j] += 500;
-                                                }
-
-                                                // check computer
-                                                if(this.computerWins[k] === 1) {
-                                                    this.computerScore[i][j] += 3;
-                                                }else if(this.computerWins[k] === 2) {
-                                                    this.computerScore[i][j] += 5;
-                                                }else if(this.computerWins[k] === 3) {
-                                                    this.computerScore[i][j] += 10;
-                                                }else if(this.computerWins[k] === 4) {
-                                                    this.computerScore[i][j] += 300;
-                                                }else if(this.computerWins[k] >= 5) {
-                                                    this.computerScore[i][j] += 1000;
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
+                                // bottom right
+                            }else if(x>=25 && y>=25) {
+                                chessX = Math.floor(curIndex/15)+1;
+                                chessY = curIndex%15+1;
                             }
 
-                            // get next computer x, y
-                            let max = this.myScore[0][0],
-                                u = 0,
-                                v = 0;
-                            for(let i=0; i<16; i++) {
-                                for(let j=0; j<16; j++) {
-                                    // if this point not drop, try count this weight.
-                                    if(!this.curChess[i][j]) {
-                                        if(max < this.myScore[i][j]) {
-                                            max = this.myScore[i][j];
-                                            u = i;
-                                            v = j;
-                                        }
+                            // not in click range
+                            if(typeof chessX === "undefined" && typeof chessY === "undefined") return false;
 
-                                        if(max < this.computerScore[i][j]) {
-                                            max = this.computerScore[i][j];
-                                            u = i;
-                                            v = j;
-                                        }
-                                    }
-                                }
+                            // drop this point
+                            //console.log(chessX, chessY);
+                            this.addPiece(chessX, chessY);
+
+                            // log this point
+                            this.curChess[chessX][chessY] = true;
+
+                            // check is win
+                            let isWin = this.checkIsWin(chessX, chessY);
+
+                            // if win, then game over.
+                            if(isWin) {
+                                this.gameOver();
+                                socket.emit('gameOver');
+
+                                return false;
                             }
 
-                            return {
-                                x: u,
-                                y: v
-                            }
-                        },
+                            // change chess pieces color
+                            this.changeColor();
+                            this.curUser = false;
 
-                        init: function () {
-                            // draw chess
-                            let allCell = "";
-                            for(let i=0; i<15*15; i++) {
-                                allCell += this.cell;
-                            }
-                            this.chess.innerHTML = allCell;
+                            socket.emit('playChess', {
+                                chessX: chessX,
+                                chessY: chessY
+                            });
 
-                            // show game type
-                            this.showGameType();
+                        }, false);
 
-                            this.chess.addEventListener("click", (event) => {
-                                if(this.over) return false;
+                        return this;
+                    },
+                };
 
-                                let target = event.target,
-                                    x = event.offsetX,
-                                    y = event.offsetY,
-                                    children = target.parentNode.children,
-                                    curIndex = undefined,
-                                    chessX = undefined,
-                                    chessY = undefined;
+                backgammon.init();
 
-                                if(target.className !== "box") return false;
-
-                                //console.log(x, y);
-
-                                for(let i=0, len=children.length; i<len; i++) {
-                                    if(children[i] === target)
-                                        curIndex = i;
-                                }
-
-                                //console.log(curIndex);
-
-                                // top left
-                                if(x<=10 && y<=10) {
-                                    chessX = Math.floor(curIndex/15);
-                                    chessY = curIndex%15;
-
-                                    // top right
-                                }else if(x>=25 && y<=10) {
-                                    chessX = Math.floor(curIndex/15);
-                                    chessY = curIndex%15+1;
-
-                                    // bottom left
-                                }else if(x<=10 && y>=25) {
-                                    chessX = Math.floor(curIndex/15)+1;
-                                    chessY = curIndex%15;
-
-                                    // bottom right
-                                }else if(x>=25 && y>=25) {
-                                    chessX = Math.floor(curIndex/15)+1;
-                                    chessY = curIndex%15+1;
-                                }
-
-                                // not in click range
-                                if(typeof chessX === "undefined" && typeof chessY === "undefined") return false;
-
-                                // drop this point
-                                //console.log(chessX, chessY);
-                                this.addPiece(chessX, chessY);
-
-                                // log this point
-                                this.curChess[chessX][chessY] = true;
-
-                                // check is win
-                                let isWin = this.checkIsWin(chessX, chessY);
-
-                                // if win, then game over.
-                                if(isWin) {
-                                    this.gameOver();
-                                    return false;
-                                }
-
-                                // change chess pieces color
-                                this.changeColor();
-
-                                // judge this is user vs computer?
-                                if(this.isComputer) {
-                                    let nextPoint = this.computerAI();
-
-                                    // console.log(nextPoint);
-                                    this.addPiece(nextPoint.x, nextPoint.y);
-
-                                    // log this point
-                                    this.curChess[nextPoint.x][nextPoint.y] = true;
-
-                                    // check is win
-                                    let isWin = this.checkIsWin(chessX, chessY);
-
-                                    // if win, then game over.
-                                    if(isWin) {
-                                        this.gameOver();
-                                        return false;
-                                    }
-
-                                    // change chess pieces color
-                                    this.changeColor();
-                                }
-
-                            }, false);
-
-                            return this;
-                        },
-                    };
-
-                    backgammon.init();
-
-                })();
-
-                let socket = this.getSocket;
+                this.backgammon = backgammon;
 
                 socket.on('getUserInfo', (data) => {
                     this.matchName = data.name;
                     this.matchRank = data.rank;
                 });
 
+                socket.on('startGame', (data) => {
+                    // 1 -> black  0 -> white
+                    socket.chess = data[socket.id] === '黑子' ? 1 : 0;
+                    this.backgammon.curUser = socket.chess === 1;
+                    this.myChess = socket.chess === 1 ? '黑子' : '白子';
+                    this.matchChess = socket.chess === 1 ? '白子' : '黑子';
+
+                    this.$notify({
+                        title: '游戏开始',
+                        message: `您将执 ${data[socket.id]} , 请${data[socket.id] === '黑子' ? '落子开始游戏' : '等待对方落子游戏'}`,
+                        duration: 0
+                    });
+                });
+
+                socket.on('playChess', (data) => {
+                    // drop this point
+                    //console.log(chessX, chessY);
+                    backgammon.addPiece(data.chessX, data.chessY);
+
+                    // log this point
+                    backgammon.curChess[data.chessX][data.chessY] = true;
+
+                    // change chess pieces color
+                    backgammon.changeColor();
+                    backgammon.curUser = true;
+                });
+
+                socket.on('gameOver', () => {
+                    backgammon.gameOver();
+                });
+
                 socket.emit('sendUserInfo', {
                     name: this.getName,
                     rank: this.getRank
                 });
+
+                socket.emit('startGame');
             })
         }
     }
@@ -511,6 +427,10 @@
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
     /*-------------------Base----------------------*/
+    h4 {
+        margin: 10px 0;
+    }
+
     >>> .chess-pieces-black {
         z-index: 100;
         position: absolute;
@@ -578,7 +498,7 @@
 
     #userInfo {
         width: 525px;
-        height: 100px;
+        height: 110px;
 
         margin: 10px auto;
     }

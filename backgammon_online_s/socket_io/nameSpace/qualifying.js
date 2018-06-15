@@ -90,6 +90,9 @@ module.exports = function (qualifyingNameSpace) {
 
             let roomId = socket.id.split('#')[1] + socket.otherSocket.id.split('#')[1];
 
+            socket.roomId = roomId;
+            socket.otherSocket.roomId = roomId;
+
             socket.join(roomId, () => {
                 socket.otherSocket.join(roomId, () => {
                     qualifyingNameSpace.to(roomId).emit('matched', {
@@ -111,6 +114,33 @@ module.exports = function (qualifyingNameSpace) {
         socket.on('sendUserInfo', (data) => {
             socket.otherSocket.emit('getUserInfo', data);
         });
+
+        socket.on('startGame', () => {
+            socket.startGameNum = (socket.startGameNum || 0) + 1;
+            socket.otherSocket.startGameNum = (socket.otherSocket.startGameNum || 0) + 1;
+
+            if (socket.startGameNum < 2) return false;
+
+            // 1->black  0->white
+            socket.chess = 1;
+            socket.otherSocket.chess = 0;
+
+            let data = {};
+            data[socket.id] = '黑子';
+            data[socket.otherSocket.id] = '白子';
+
+            qualifyingNameSpace.to(socket.roomId).emit('startGame', data);
+
+        });
+
+        socket.on('playChess', (data) => {
+            socket.otherSocket.emit('playChess', data);
+        });
+
+        socket.on('gameOver', () => {
+            socket.otherSocket.emit('gameOver');
+        });
+
 
         socket.on('disconnect', function(result){
             gameSocketNum--;
