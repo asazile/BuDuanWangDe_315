@@ -65,6 +65,11 @@
                         </el-table-column>
 
                     </el-table>
+
+                    <div style="text-align: center; margin: 10px 0;">
+                        <el-button type="warning" plain size="mini" :loading="matchingLoading" @click="matchingHander">加载更多</el-button>
+                    </div>
+
                 </el-collapse-item>
 
                 <el-collapse-item name="qualifyingGame">
@@ -88,15 +93,19 @@
                                 width="180">
                         </el-table-column>
                         <el-table-column
-                                prop="time"
-                                label="游戏时间">
-                        </el-table-column>
-                        <el-table-column
                                 prop="result"
                                 label="游戏结果">
                         </el-table-column>
+                        <el-table-column
+                                prop="time"
+                                label="游戏时间">
+                        </el-table-column>
 
                     </el-table>
+
+                    <div style="text-align: center; margin: 10px 0;">
+                        <el-button type="warning" plain size="mini" :loading="qualifyingLoading" @click="qualifyingHander">加载更多</el-button>
+                    </div>
 
                 </el-collapse-item>
 
@@ -136,6 +145,10 @@
                 activeName: 'userInfo',
                 password: '123456',
                 btnText: '修改密码',
+                matchingLoading: false,
+                matchingPage: 1,
+                qualifyingLoading: false,
+                qualifyingPage: 1,
 
                 form: {
                     password: '',
@@ -151,67 +164,9 @@
                     ]
                 },
 
-                MGameInfoItems: [
-                    {
-                        id: 22,
-                        user: 'Daoerche',
-                        adversary: 'WangQingJun',
-                        result: 'Win',
-                        time: '2018-06-10'
-                    },
-                    {
-                        id: 22,
-                        user: 'Daoerche',
-                        adversary: 'WangQingJun',
-                        result: 'Defeat',
-                        time: '2018-06-10'
-                    },
-                    {
-                        id: 22,
-                        user: 'Daoerche',
-                        adversary: 'WangQingJun',
-                        result: 'Defeat',
-                        time: '2018-06-10'
-                    },
-                    {
-                        id: 22,
-                        user: 'Daoerche',
-                        adversary: 'WangQingJun',
-                        result: 'Win',
-                        time: '2018-06-10'
-                    }
-                ],
+                MGameInfoItems: [],
 
-                QGameInfoItems: [
-                    {
-                        id: 22,
-                        user: 'TXC',
-                        adversary: 'WangQingJun',
-                        result: 'Win',
-                        time: '2018-06-10'
-                    },
-                    {
-                        id: 22,
-                        user: 'TXC',
-                        adversary: 'WangQingJun',
-                        result: 'Win',
-                        time: '2018-06-10'
-                    },
-                    {
-                        id: 22,
-                        user: 'TXC',
-                        adversary: 'WangQingJun',
-                        result: 'Defeat',
-                        time: '2018-06-10'
-                    },
-                    {
-                        id: 22,
-                        user: 'TXC',
-                        adversary: 'WangQingJun',
-                        result: 'Win',
-                        time: '2018-06-10'
-                    }
-                ]
+                QGameInfoItems: []
             }
         },
 
@@ -225,6 +180,40 @@
             getRank () {
                 return this.$store.state.rank;
             }
+        },
+
+        mounted: function () {
+            let _this = this;
+
+            const loading = this.$loading({
+                lock: true,
+                text: 'Loading...',
+                spinner: 'el-icon-loading',
+                background: 'rgba(0, 0, 0, 0.7)'
+            });
+
+            function getQGameRecord() {
+                return axios.post('/users/getQGameRecord', {page: 0});
+            }
+
+            function getMGameRecord() {
+                return axios.post('/users/getMGameRecord', {page: 0});
+            }
+
+            axios.all([getQGameRecord(), getMGameRecord()])
+                .then(axios.spread(function (qResponse, mResponse) {
+                    loading.close();
+
+                    let qRes = qResponse.data,
+                        mRes = mResponse.data;
+
+                    if(qRes.status && mRes.status) {
+                        _this.QGameInfoItems = qRes.data;
+                        _this.MGameInfoItems = mRes.data;
+                    }else {
+                        console.log(qRes.message, mRes.message);
+                    }
+                }));
         },
 
         methods: {
@@ -280,6 +269,50 @@
                     return 'warning-row';
                 }
                 return '';
+            },
+
+            matchingHander () {
+                this.matchingLoading = true;
+
+                axios.post('/users/getMGameRecord', {page: this.matchingPage})
+                    .then((response) => {
+                        this.matchingLoading = false;
+
+                        let res = response.data;
+
+                        if (res.status) {
+                            if (res.data.length > 0) {
+                                let len = this.MGameInfoItems.length;
+                                this.MGameInfoItems.splice(len, 0, ...res.data);
+                                this.matchingPage++;
+
+                            } else {
+                                this.$message('已经没有更多对战记录！');
+                            }
+                        }
+                    });
+            },
+
+            qualifyingHander () {
+                this.qualifyingLoading = true;
+
+                axios.post('/users/getQGameRecord', {page: this.qualifyingPage})
+                    .then((response) => {
+                        this.qualifyingLoading = false;
+
+                        let res = response.data;
+
+                        if (res.status) {
+                            if (res.data.length > 0) {
+                                let len = this.QGameInfoItems.length;
+                                this.QGameInfoItems.splice(len, 0, ...res.data);
+                                this.qualifyingPage++;
+
+                            } else {
+                                this.$message('已经没有更多对战记录！');
+                            }
+                        }
+                    });
             }
         }
     }

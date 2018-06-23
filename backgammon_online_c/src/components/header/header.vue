@@ -55,7 +55,8 @@
                         });
 
                         this.$store.commit({
-                            type: 'closeSocket'
+                            type: 'closeSocket',
+                            socket: null
                         });
 
                         this.$store.commit({

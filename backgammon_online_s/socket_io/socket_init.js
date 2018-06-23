@@ -1,4 +1,4 @@
-//const matching = require('./nameSpace/matching');
+const matching = require('./nameSpace/matching');
 const qualifying = require('./nameSpace/qualifying');
 
 module.exports = function (io) {
@@ -19,7 +19,7 @@ module.exports = function (io) {
      * multiple namespace
      */
 
-    //const matchingNameSpace = io.of('/matching');
+    const matchingNameSpace = io.of('/matching');
     const qualifyingNameSpace = io.of('/qualifying');
 
 
@@ -27,6 +27,6 @@ module.exports = function (io) {
      * mount namespace
      */
 
-    //matching(matchingNameSpace);
+    matching(matchingNameSpace);
     qualifying(qualifyingNameSpace);
 };

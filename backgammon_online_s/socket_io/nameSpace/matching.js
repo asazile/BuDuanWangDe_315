@@ -1,4 +1,4 @@
-module.exports = function (qualifyingNameSpace) {
+module.exports = function (matchingNameSpace) {
     let gameSocketNum = 0,
         gameWaitPool = [];
 
@@ -31,7 +31,7 @@ module.exports = function (qualifyingNameSpace) {
 
                 socket.join(roomId, () => {
                     socket.otherSocket.join(roomId, () => {
-                        qualifyingNameSpace.to(roomId).emit('matched', {
+                        matchingNameSpace.to(roomId).emit('matched', {
                             matchName1: socket.handshake.query.name,
                             matchName2: socket.otherSocket.handshake.query.name
                         });
@@ -43,7 +43,7 @@ module.exports = function (qualifyingNameSpace) {
             }
         }
 
-        console.log('qualifying one poolHander.');
+        console.log('matching one poolHander.');
         setTimeout(poolHander, 1000, gameWaitPool);
     };
 
@@ -76,12 +76,12 @@ module.exports = function (qualifyingNameSpace) {
 
         return result;
     };
-    
+
     poolHander(gameWaitPool);
 
-    qualifyingNameSpace.on('connection', function(socket){
+    matchingNameSpace.on('connection', function(socket){
         gameSocketNum++;
-        console.log(gameSocketNum, 'qualifying game is connection...');
+        console.log(gameSocketNum, 'matching game is connection...');
 
         let matchResult = matchGameUser(socket, gameWaitPool);
 
@@ -95,7 +95,7 @@ module.exports = function (qualifyingNameSpace) {
 
             socket.join(roomId, () => {
                 socket.otherSocket.join(roomId, () => {
-                    qualifyingNameSpace.to(roomId).emit('matched', {
+                    matchingNameSpace.to(roomId).emit('matched', {
                         matchName1: socket.handshake.query.name,
                         matchName2: socket.otherSocket.handshake.query.name
                     });
@@ -106,7 +106,7 @@ module.exports = function (qualifyingNameSpace) {
             gameWaitPool.push(socket);
         }
 
-        
+
         socket.on('ready', () => {
             socket.otherSocket.emit('ready');
         });
@@ -129,7 +129,7 @@ module.exports = function (qualifyingNameSpace) {
             data[socket.id] = '黑子';
             data[socket.otherSocket.id] = '白子';
 
-            qualifyingNameSpace.to(socket.roomId).emit('startGame', data);
+            matchingNameSpace.to(socket.roomId).emit('startGame', data);
 
         });
 
@@ -148,7 +148,7 @@ module.exports = function (qualifyingNameSpace) {
 
         socket.on('disconnect', function(result){
             gameSocketNum--;
-            console.log('qualifying game user disconnected');
+            console.log('matching game user disconnected');
         });
     });
 };

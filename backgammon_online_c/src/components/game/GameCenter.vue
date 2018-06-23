@@ -148,6 +148,11 @@
                 this.startTiming();
 
                 this.$store.commit({
+                    type: 'updateCurGameType',
+                    curGameType: gameType
+                });
+
+                this.$store.commit({
                     type: 'createSocket',
                     socket: io(`/${gameType}?username=${this.getUsername}&rank=${this.getRank}&name=${this.getName}`)
                 });

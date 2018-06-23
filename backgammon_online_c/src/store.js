@@ -10,7 +10,8 @@ export default new Vuex.Store({
         rank: -1,
         currentComponent: 'UserInfo',
         isInGame: false,
-        socket: null
+        socket: null,
+        curGameType: ''
     },
 
     mutations: {
@@ -39,8 +40,12 @@ export default new Vuex.Store({
         },
 
         closeSocket (state, data) {
-            state.socket.close();
+            state.socket && state.socket.close();
             state.socket = data.socket;
+        },
+
+        updateCurGameType (state, data) {
+            state.curGameType = data.curGameType;
         }
     },
 

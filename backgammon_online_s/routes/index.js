@@ -30,7 +30,7 @@ router.post('/login', function(req, res, next) {
         let result = new ResObject(1, '登陆成功！', {
             username: thisUserAllInfo.username,
             name: thisUserAllInfo.name,
-            rank: thisUserAllInfo.rank
+            rank: Number(thisUserAllInfo.rank)
         });
         res.json(result);
     });

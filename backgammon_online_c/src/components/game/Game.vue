@@ -16,6 +16,8 @@
             </div>
         </div>
         <div id="operate">
+            <el-button type="warning" plain class="button" @click="surrenderHander" :disabled="surrender">认输</el-button>
+            <el-button type="warning" plain class="button" @click="exitGame" :disabled="!gameOver">退出游戏</el-button>
             <span id="chessFlag" class="chess-pieces-black"></span>
         </div>
         <div id="container">
@@ -29,7 +31,26 @@
 </template>
 
 <script>
+    import axios from 'axios';
 
+    const Chain = function (fn) {
+        this.fn = fn;
+        this.successor = null
+    };
+
+    Chain.prototype.setNextSuccessor = function (successor) {
+        return this.successor = successor;
+    };
+
+    Chain.prototype.passRequest = function () {
+        let ret = this.fn.apply(this, arguments);
+
+        if (ret === 'nextSuccessor') {
+            return this.successor && this.successor.passRequest.apply(this.successor, arguments);
+        }
+
+        return ret;
+    };
 
     export default {
         name: '',
@@ -39,7 +60,9 @@
                 matchName: '',
                 matchRank: '',
                 matchChess: '',
-                backgammon: null
+                backgammon: null,
+                gameOver: false,
+                surrender: false
             }
         },
 
@@ -54,6 +77,10 @@
 
             getSocket () {
                 return this.$store.state.socket;
+            },
+
+            getGameType () {
+                return this.$store.state.curGameType;
             }
         },
 
@@ -212,28 +239,67 @@
                         return flag;
                     },
 
-                    gameOver: function () {
-                        if(this.curColor) {
-                            info.innerText = "游戏结束，黑棋取得胜利..."
-                        }else {
-                            info.innerText = "游戏结束，白棋取得胜利..."
-                        }
+                    gameOver: function (addRank, isWin) {
+                        this.over = true;
+                        _this.surrender = true;
+                        _this.gameOver = true;
 
-                        if (Boolean(socket.chess) === this.curColor) {
-                            _this.$confirm('Win', '游戏结束', {
-                                confirmButtonText: '确定',
-                                type: 'success',
-                                center: true,
-                                showCancelButton: false
-                            });
-                        } else {
-                            _this.$confirm('Defeat', '游戏结束', {
-                                confirmButtonText: '确定',
-                                type: 'warning',
-                                center: true,
-                                showCancelButton: false
-                            });
-                        }
+                        addRank = Number(addRank);
+
+                        let oldRank = Number(_this.getRank),
+                            newRank = (oldRank + addRank >= 0) ? (oldRank + addRank) : 0;
+
+                        _this.$store.commit({
+                            type: 'updateRank',
+                            rank: newRank
+                        });
+
+                        const gameOverWin = function (addRank, oldRank, newRank, isWin) {
+                            if (isWin === 1) {
+                                backgammon.info.innerText = '大吉大利，今晚吃鸡';
+
+                                _this.$confirm(`<p><strong>Win</strong></p><p>${oldRank} ——> ${addRank>=0 ? '+' : '-'}${Math.abs(addRank)}</p><p>${newRank}</p>`, '游戏结束', {
+                                    confirmButtonText: '确定',
+                                    type: 'success',
+                                    center: true,
+                                    dangerouslyUseHTMLString: true,
+                                    showCancelButton: false
+                                });
+
+                            } else {
+                                return 'nextSuccessor';
+                            }
+                        };
+
+                        const gameOverDefeat = function (addRank, oldRank, newRank, isWin) {
+                            if (isWin === -1) {
+                                backgammon.info.innerText = '再接再厉，愈战愈勇';
+
+                                _this.$confirm(`<p><b>Defeat</b></p><P>${oldRank} ——> ${addRank>=0 ? '+' : '-'}${Math.abs(addRank)}</p><P>${newRank}</P>`, '游戏结束', {
+                                    confirmButtonText: '确定',
+                                    type: 'warning',
+                                    center: true,
+                                    dangerouslyUseHTMLString: true,
+                                    showCancelButton: false
+                                });
+
+                            } else {
+                                return 'nextSuccessor';
+                            }
+                        };
+
+                        const gameOverError = function (addRank, oldRank, newRank, isWin) {
+                            console.log(new Error('isWin variable type is error.'));
+                        };
+
+                        let chainGameOverWin = new Chain(gameOverWin),
+                            chainGameOverDefeat = new Chain(gameOverDefeat),
+                            chainGameOverError = new Chain(gameOverError);
+
+                        chainGameOverWin.setNextSuccessor(chainGameOverDefeat);
+                        chainGameOverDefeat.setNextSuccessor(chainGameOverError);
+
+                        chainGameOverWin.passRequest(addRank, oldRank, newRank, isWin);
                     },
 
                     removeChessPiece: function () {
@@ -245,44 +311,6 @@
                                 i--;
                                 len--;
                             }
-                        }
-                    },
-
-                    resetGame: function () {
-                        this.removeChessPiece();
-                        this.info.innerText = "";
-                        this.showGameType();
-                        this.over = false;
-                        this.curColor = true;
-                        this.curChess = (() => {
-                            let arr = [];
-                            for(let i=0; i<16; i++) {
-                                arr[i] = [];
-                                for(let j=0; j<16; j++) {
-                                    arr[i][j] = false;
-                                }
-                            }
-
-                            return arr;
-                        })();
-
-                        this.myWins = [];
-                        this.myScore = (() => {
-                            let arr = [];
-                            for(let i=0; i<16; i++) {
-                                arr[i] = [];
-                                for(let j=0; j<16; j++) {
-                                    arr[i][j] = 0;
-                                }
-                            }
-
-                            return arr;
-                        })();
-
-                        if(this.curColor) {
-                            chessFlag.className = "chess-pieces-black";
-                        }else {
-                            chessFlag.className = "chess-pieces-white";
                         }
                     },
 
@@ -352,8 +380,62 @@
 
                             // if win, then game over.
                             if(isWin) {
-                                this.gameOver();
-                                socket.emit('gameOver');
+                                socket.emit('playChess', {
+                                    chessX: chessX,
+                                    chessY: chessY,
+                                    end: true
+                                });
+
+                                let gameType = _this.getGameType;
+
+                                const matching = function (gameType) {
+                                    if (gameType === 'matching') {
+                                        axios.post('/users/addMGameRecord', {matchName: _this.matchName, isWin: 1});
+                                        this.gameOver(0, 1);
+                                        socket.emit('gameOver', -1);
+                                    } else {
+                                        return 'nextSuccessor';
+                                    }
+                                };
+
+                                const qualifying = function (gameType) {
+                                    if (gameType === 'qualifying') {
+                                        axios.post('/users/addQGameRecord', {matchName: _this.matchName, isWin: 1});
+                                        axios.post('/users/changeRank', {
+                                            rA: _this.getRank,
+                                            rB: _this.matchRank,
+                                            isWin: 1
+                                        })
+                                            .then((response) => {
+                                                let res = response.data;
+
+                                                if(res.status) {
+                                                    backgammon.gameOver(res.data.addRank, 1);
+                                                    socket.emit('gameOver', -1);
+                                                }else {
+                                                    alert(res.message);
+                                                }
+                                            })
+                                            .catch((error) => {
+                                                console.log(error);
+                                            });
+                                    } else {
+                                        return 'nextSuccessor';
+                                    }
+                                };
+
+                                const error = function (gameType) {
+                                    console.log(new Error('gameType variable type is error.'))
+                                };
+
+                                let chainMatching = new Chain(matching),
+                                    chainQualifying = new Chain(qualifying),
+                                    chainError = new Chain(error);
+
+                                chainMatching.setNextSuccessor(chainQualifying);
+                                chainQualifying.setNextSuccessor(chainError);
+
+                                chainMatching.passRequest(gameType);
 
                                 return false;
                             }
@@ -364,7 +446,8 @@
 
                             socket.emit('playChess', {
                                 chessX: chessX,
-                                chessY: chessY
+                                chessY: chessY,
+                                end: false
                             });
 
                         }, false);
@@ -404,14 +487,122 @@
                     // log this point
                     backgammon.curChess[data.chessX][data.chessY] = true;
 
+                    if (data.end) return false;
+
                     // change chess pieces color
                     backgammon.changeColor();
                     backgammon.curUser = true;
                 });
 
-                socket.on('gameOver', () => {
-                    backgammon.gameOver();
+                socket.on('gameOver', (isWin) => {
+                    let gameType = _this.getGameType;
+
+                    const matching = function (gameType) {
+                        if (gameType === 'matching') {
+                            axios.post('/users/addMGameRecord', {matchName: _this.matchName, isWin: -1});
+                            backgammon.gameOver(0, isWin);
+                        } else {
+                            return 'nextSuccessor';
+                        }
+                    };
+
+                    const qualifying = function (gameType) {
+                        if (gameType === 'qualifying') {
+                            axios.post('/users/addQGameRecord', {matchName: _this.matchName, isWin: -1});
+                            axios.post('/users/changeRank', {
+                                rA: _this.getRank,
+                                rB: _this.matchRank,
+                                isWin: -1
+                            })
+                                .then((response) => {
+                                    let res = response.data;
+
+                                    if(res.status) {
+                                        backgammon.gameOver(res.data.addRank, isWin);
+                                    }else {
+                                        alert(res.message);
+                                    }
+                                })
+                                .catch((error) => {
+                                    console.log(error);
+                                });
+                        } else {
+                            return 'nextSuccessor';
+                        }
+                    };
+
+                    const error = function (gameType) {
+                        console.log(new Error('gameType variable type is error.'))
+                    };
+
+                    let chainMatching = new Chain(matching),
+                        chainQualifying = new Chain(qualifying),
+                        chainError = new Chain(error);
+
+                    chainMatching.setNextSuccessor(chainQualifying);
+                    chainQualifying.setNextSuccessor(chainError);
+
+                    chainMatching.passRequest(gameType);
                 });
+
+                socket.on('surrender', () => {
+                    this.$notify({
+                        title: '对方认输',
+                        message: '您取得了胜利！'
+                    });
+
+                    let gameType = _this.getGameType;
+
+                    const matching = function (gameType) {
+                        if (gameType === 'matching') {
+                            axios.post('/users/addMGameRecord', {matchName: _this.matchName, isWin: 1});
+                            backgammon.gameOver(0, 1);
+                            socket.emit('gameOver', -1);
+                        } else {
+                            return 'nextSuccessor';
+                        }
+                    };
+
+                    const qualifying = function (gameType) {
+                        if (gameType === 'qualifying') {
+                            axios.post('/users/addQGameRecord', {matchName: _this.matchName, isWin: 1});
+                            axios.post('/users/changeRank', {
+                                rA: _this.getRank,
+                                rB: _this.matchRank,
+                                isWin: 1
+                            })
+                                .then((response) => {
+                                    let res = response.data;
+
+                                    if(res.status) {
+                                        backgammon.gameOver(res.data.addRank, 1);
+                                        socket.emit('gameOver', -1);
+                                    }else {
+                                        alert(res.message);
+                                    }
+                                })
+                                .catch((error) => {
+                                    console.log(error);
+                                });
+                        } else {
+                            return 'nextSuccessor';
+                        }
+                    };
+
+                    const error = function (gameType) {
+                        console.log(new Error('gameType variable type is error.'))
+                    };
+
+                    let chainMatching = new Chain(matching),
+                        chainQualifying = new Chain(qualifying),
+                        chainError = new Chain(error);
+
+                    chainMatching.setNextSuccessor(chainQualifying);
+                    chainQualifying.setNextSuccessor(chainError);
+
+                    chainMatching.passRequest(gameType);
+                });
+
 
                 socket.emit('sendUserInfo', {
                     name: this.getName,
@@ -420,6 +611,30 @@
 
                 socket.emit('startGame');
             })
+        },
+
+        methods: {
+            surrenderHander () {
+                this.$confirm('确定认输吗?', '提示', {
+                    confirmButtonText: '确定',
+                    cancelButtonText: '取消',
+                    type: 'warning'
+                }).then(() => {
+                    this.getSocket.emit('surrender');
+                })
+            },
+
+            exitGame () {
+                this.$store.commit({
+                    type: 'updateCurComponent',
+                    currentComponent: 'GameCenter'
+                });
+
+                this.$store.commit({
+                    type: 'updateIsInGame',
+                    isInGame: false
+                });
+            }
         }
     }
 </script>
