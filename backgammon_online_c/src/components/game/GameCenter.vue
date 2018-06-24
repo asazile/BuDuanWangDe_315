@@ -47,8 +47,8 @@
             </div>
 
             <span slot="footer" class="dialog-footer">
-                <el-button @click="cancelGame">取 消</el-button>
-                <el-button type="warning" plain v-if="matchName" @click="interGame">确 定</el-button>
+                <el-button @click="cancelGame" :disabled="meReady">取 消</el-button>
+                <el-button type="warning" plain v-if="matchName" @click="interGame" :disabled="meReady">确 定</el-button>
             </span>
         </el-dialog>
     </div>
@@ -179,13 +179,17 @@
                     }
                 });
 
-                socket.on('cancelGame', () => {
+                socket.on('cancelGame', (normal) => {
                     this.$message('对方取消了游戏匹配！');
-                    this.cancelGame();
+                    this.cancelGame(normal);
                 });
             },
 
-            cancelGame () {
+            cancelGame (normal = true) {
+                if (normal  && this.matchingInfo === '匹配成功') {
+                    this.getSocket.emit('cancelGame', true);
+                }
+
                 this.$store.commit({
                     type: 'updateIsInGame',
                     isInGame: false
@@ -198,6 +202,8 @@
 
                 this.matchingInfo = '匹配中，请稍后...';
                 this.matchName = '';
+                this.meReady = false;
+                this.youReady = false;
                 this.dialogVisible = false;
                 this.endTiming();
             },

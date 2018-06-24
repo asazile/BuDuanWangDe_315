@@ -15,7 +15,7 @@ module.exports = function (matchingNameSpace) {
             }
 
             if (weightValue < 100) {
-                weightValue += 5;
+                thatSocket.weightValue = (thatSocket.weightValue || 20) + 5;
             }
         }
 
@@ -29,8 +29,14 @@ module.exports = function (matchingNameSpace) {
 
                 let roomId = socket.id.split('#')[1] + socket.otherSocket.id.split('#')[1];
 
+                socket.roomId = roomId;
+                socket.otherSocket.roomId = roomId;
+
                 socket.join(roomId, () => {
                     socket.otherSocket.join(roomId, () => {
+                        socket.matched = true;
+                        socket.otherSocket.matched = true;
+
                         matchingNameSpace.to(roomId).emit('matched', {
                             matchName1: socket.handshake.query.name,
                             matchName2: socket.otherSocket.handshake.query.name
@@ -95,6 +101,9 @@ module.exports = function (matchingNameSpace) {
 
             socket.join(roomId, () => {
                 socket.otherSocket.join(roomId, () => {
+                    socket.matched = true;
+                    socket.otherSocket.matched = true;
+
                     matchingNameSpace.to(roomId).emit('matched', {
                         matchName1: socket.handshake.query.name,
                         matchName2: socket.otherSocket.handshake.query.name
@@ -149,6 +158,18 @@ module.exports = function (matchingNameSpace) {
         socket.on('disconnect', function(result){
             gameSocketNum--;
             console.log('matching game user disconnected');
+
+            let normal = result.indexOf('error') === -1;
+
+            console.log(normal, socket.matched, socket.gaming);
+
+            if (!normal && socket.matched && !socket.gaming) {
+                socket.otherSocket.emit('cancelGame', false);
+            }
+
+            if (!normal && socket.matched && socket.gaming) {
+                socket.otherSocket.emit('exitGame');
+            }
         });
     });
 };

@@ -38,6 +38,7 @@ SELECT * FROM
 (SELECT count(*) AS '2000-2199' FROM user WHERE rank BETWEEN 2000 AND 2199) f,
 (SELECT count(*) AS '2200-2399' FROM user WHERE rank BETWEEN 2200 AND 2399) g,
 (SELECT count(*) AS '2400-2599' FROM user WHERE rank BETWEEN 2400 AND 2599) h,
+<<<<<<< Updated upstream
 (SELECT count(*) AS '2600-' FROM user WHERE rank >= 2600) i;
 
 
@@ -64,3 +65,6 @@ from
     user 
 where 
     id='';
+=======
+(SELECT count(*) AS '2600-' FROM user WHERE rank >= 2600) i;
+>>>>>>> Stashed changes

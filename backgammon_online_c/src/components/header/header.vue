@@ -14,7 +14,7 @@
                 {{ getName }}<i class="el-icon-arrow-down el-icon--right"></i>
             </span>
                 <el-dropdown-menu slot="dropdown">
-                    <el-dropdown-item command="loginOut">退出</el-dropdown-item>
+                    <el-dropdown-item command="loginOut" :disabled="getIsInGame">退出</el-dropdown-item>
                 </el-dropdown-menu>
             </el-dropdown>
         </div>
@@ -36,6 +36,10 @@
         computed: {
             getName () {
                 return this.$store.state.name
+            },
+
+            getIsInGame () {
+                return this.$store.state.isInGame;
             }
         },
 

@@ -288,7 +288,7 @@
 
                         const gameOverWin = function (addRank, oldRank, newRank, isWin) {
                             if (isWin === 1) {
-                                backgammon.info.innerText = '大吉大利，今晚吃鸡';
+                                backgammon.info.innerText = '大吉大利，今晚赢棋';
 
                                 _this.$confirm(`<p><strong>Win</strong></p><p>${oldRank} ——> ${addRank>=0 ? '+' : '-'}${Math.abs(addRank)}</p><p>${newRank}</p>`, '游戏结束', {
                                     confirmButtonText: '确定',
@@ -310,6 +310,23 @@
                                 _this.$confirm(`<p><b>Defeat</b></p><P>${oldRank} ——> ${addRank>=0 ? '+' : '-'}${Math.abs(addRank)}</p><P>${newRank}</P>`, '游戏结束', {
                                     confirmButtonText: '确定',
                                     type: 'warning',
+                                    center: true,
+                                    dangerouslyUseHTMLString: true,
+                                    showCancelButton: false
+                                });
+
+                            } else {
+                                return 'nextSuccessor';
+                            }
+                        };
+
+                        const gameOverDraw = function (addRank, oldRank, newRank, isWin) {
+                            if (isWin === 0) {
+                                backgammon.info.innerText = '平分秋色';
+
+                                _this.$confirm(`<p><b>Draw</b></p><P>${oldRank} ——> ${addRank>=0 ? '+' : '-'}${Math.abs(addRank)}</p><P>${newRank}</P>`, '游戏结束', {
+                                    confirmButtonText: '确定',
+                                    type: 'info',
                                     center: true,
                                     dangerouslyUseHTMLString: true,
                                     showCancelButton: false
@@ -474,6 +491,69 @@
                                 return false;
                             }
 
+                            let isDraw = this.checkIsDraw(this.curChess);
+
+                            if (isDraw) {
+                                socket.emit('playChess', {
+                                    chessX: chessX,
+                                    chessY: chessY,
+                                    end: true
+                                });
+
+                                let gameType = _this.getGameType;
+
+                                const matching = function (gameType) {
+                                    if (gameType === 'matching') {
+                                        axios.post('/users/addMGameRecord', {matchName: _this.matchName, isWin: 0});
+                                        socket.emit('gameOver', 0);
+                                        backgammon.gameOver(0, 0);
+                                    } else {
+                                        return 'nextSuccessor';
+                                    }
+                                };
+
+                                const qualifying = function (gameType) {
+                                    if (gameType === 'qualifying') {
+                                        axios.post('/users/addQGameRecord', {matchName: _this.matchName, isWin: 0});
+                                        axios.post('/users/changeRank', {
+                                            rA: _this.getRank,
+                                            rB: _this.matchRank,
+                                            isWin: 0
+                                        })
+                                            .then((response) => {
+                                                let res = response.data;
+
+                                                if(res.status) {
+                                                    socket.emit('gameOver', 0);
+                                                    backgammon.gameOver(res.data.addRank, 0);
+                                                }else {
+                                                    alert(res.message);
+                                                }
+                                            })
+                                            .catch((error) => {
+                                                console.log(error);
+                                            });
+                                    } else {
+                                        return 'nextSuccessor';
+                                    }
+                                };
+
+                                const error = function (gameType) {
+                                    console.log(new Error('gameType variable type is error.'))
+                                };
+
+                                let chainMatching = new Chain(matching),
+                                    chainQualifying = new Chain(qualifying),
+                                    chainError = new Chain(error);
+
+                                chainMatching.setNextSuccessor(chainQualifying);
+                                chainQualifying.setNextSuccessor(chainError);
+
+                                chainMatching.passRequest(gameType);
+
+                                return false;
+                            }
+
                             // change chess pieces color
                             this.changeColor();
                             this.curUser = false;
@@ -509,7 +589,6 @@
                     this.$notify({
                         title: '游戏开始',
                         message: `您将执 ${data[socket.id]} , 请${data[socket.id] === '黑子' ? '落子开始游戏' : '等待对方落子游戏'}`,
-                        duration: 0
                     });
                 });
 
@@ -586,7 +665,6 @@
                     });
 
                     let gameType = _this.getGameType;
-                    console.log(gameType);
 
                     const matching = function (gameType) {
                         if (gameType === 'matching') {
@@ -638,6 +716,61 @@
                     chainMatching.passRequest(gameType);
                 });
 
+                socket.on('exitGame', () => {
+                    this.$notify({
+                        title: '对方逃跑或离线',
+                        message: '您取得了胜利！'
+                    });
+
+                    let gameType = _this.getGameType;
+
+                    const matching = function (gameType) {
+                        if (gameType === 'matching') {
+                            axios.post('/users/addMGameRecord', {matchName: _this.matchName, isWin: 1});
+                            backgammon.gameOver(0, 1);
+                        } else {
+                            return 'nextSuccessor';
+                        }
+                    };
+
+                    const qualifying = function (gameType) {
+                        if (gameType === 'qualifying') {
+                            axios.post('/users/addQGameRecord', {matchName: _this.matchName, isWin: 1});
+                            axios.post('/users/changeRank', {
+                                rA: _this.getRank,
+                                rB: _this.matchRank,
+                                isWin: 1
+                            })
+                                .then((response) => {
+                                    let res = response.data;
+
+                                    if(res.status) {
+                                        backgammon.gameOver(res.data.addRank, 1);
+                                    }else {
+                                        alert(res.message);
+                                    }
+                                })
+                                .catch((error) => {
+                                    console.log(error);
+                                });
+                        } else {
+                            return 'nextSuccessor';
+                        }
+                    };
+
+                    const error = function (gameType) {
+                        console.log(new Error('gameType variable type is error.'))
+                    };
+
+                    let chainMatching = new Chain(matching),
+                        chainQualifying = new Chain(qualifying),
+                        chainError = new Chain(error);
+
+                    chainMatching.setNextSuccessor(chainQualifying);
+                    chainQualifying.setNextSuccessor(chainError);
+
+                    chainMatching.passRequest(gameType);
+                });
 
                 socket.emit('sendUserInfo', {
                     name: this.getName,

@@ -1,5 +1,7 @@
 <template>
     <div>
+        <div id="userHistoryRank" class="views"></div>
+        <div id="highRank" class="views"></div>
         <div id="rankDistribution" class="views"></div>
     </div>
 </template>
@@ -10,6 +12,7 @@
     const echarts = require('echarts/lib/echarts');
 
     require('echarts/lib/chart/pie');
+    require('echarts/lib/chart/bar');
 
     require('echarts/lib/component/tooltip');
     require('echarts/lib/component/title');
@@ -75,6 +78,46 @@
                         ]
                     });
                 });
+
+
+            const myChart = echarts.init(document.getElementById('highRank'));
+
+            myChart.setOption({
+                title: {
+                    text: 'Rank 前十 天梯榜',
+                    x:'center'
+                },
+                tooltip: {
+                    trigger: 'axis',
+                    axisPointer: {
+                        type: 'shadow'
+                    }
+                },
+                legend: {
+                    data: ['Rank值']
+                },
+                grid: {
+                    left: '3%',
+                    right: '4%',
+                    bottom: '3%',
+                    containLabel: true
+                },
+                xAxis: {
+                    type: 'value',
+                    boundaryGap: [0, 0.01]
+                },
+                yAxis: {
+                    type: 'category',
+                    data: ['巴西','印尼','美国','印度','中国','世界人口(万)']
+                },
+                series: [
+                    {
+                        name: 'Rank值',
+                        type: 'bar',
+                        data: [18203, 23489, 29034, 104970, 131744, 630230]
+                    }
+                ]
+            });
         }
     }
 </script>

@@ -15,7 +15,7 @@ module.exports = function (qualifyingNameSpace) {
             }
 
             if (weightValue < 100) {
-                weightValue += 5;
+                thatSocket.weightValue = (thatSocket.weightValue || 20) + 5;
             }
         }
 
@@ -28,6 +28,9 @@ module.exports = function (qualifyingNameSpace) {
                 console.log('match success!');
 
                 let roomId = socket.id.split('#')[1] + socket.otherSocket.id.split('#')[1];
+
+                socket.roomId = roomId;
+                socket.otherSocket.roomId = roomId;
 
                 socket.join(roomId, () => {
                     socket.otherSocket.join(roomId, () => {
@@ -66,6 +69,7 @@ module.exports = function (qualifyingNameSpace) {
 
             let thatRank = thatSocket.handshake.query.rank;
 
+            console.log(Math.abs(Number(curRank)-Number(thatRank)), curSocket.weightValue);
             if (Math.abs(Number(curRank)-Number(thatRank)) <= (curSocket.weightValue || 20)) {
                 gameWaitPool.splice(i, 1);
 
@@ -139,7 +143,6 @@ module.exports = function (qualifyingNameSpace) {
             data[socket.otherSocket.id] = '白子';
 
             qualifyingNameSpace.to(socket.roomId).emit('startGame', data);
-
         });
 
         socket.on('playChess', (data) => {
@@ -154,6 +157,10 @@ module.exports = function (qualifyingNameSpace) {
             socket.otherSocket.emit('surrender');
         });
 
+        socket.on('cancelGame', (normal) => {
+            socket.otherSocket.emit('cancelGame', normal);
+        });
+
 
         socket.on('disconnect', function(result){
             gameSocketNum--;
@@ -161,8 +168,10 @@ module.exports = function (qualifyingNameSpace) {
 
             let normal = result.indexOf('error') === -1;
 
+            console.log(normal, socket.matched, socket.gaming);
+
             if (!normal && socket.matched && !socket.gaming) {
-                socket.otherSocket.emit('cancelGame');
+                socket.otherSocket.emit('cancelGame', false);
             }
 
             if (!normal && socket.matched && socket.gaming) {
