@@ -154,6 +154,9 @@ module.exports = function (matchingNameSpace) {
             socket.otherSocket.emit('surrender');
         });
 
+        socket.on('cancelGame', (normal) => {
+            socket.otherSocket.emit('cancelGame', normal);
+        });
 
         socket.on('disconnect', function(result){
             gameSocketNum--;
