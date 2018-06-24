@@ -124,10 +124,18 @@
                 if (value === '') {
                     callback(new Error('密码不能为空...'));
                 } else {
-                    if (this.form.checkPassword !== '') {
-                        this.$refs.form.validateField('checkPassword');
+                    var regx =/^(?!([a-zA-Z]+|\d+)$)[a-zA-Z\d]{6,20}$/;
+
+                    if(value.match(regx)==null) {
+                        callback(new Error('密码必须为6-20位数字和字母组合'));
+
+                    }else {
+                        if (this.form.checkPassword !== '') {
+                            this.$refs.form.validateField('checkPassword');
+                        }
+                        
+                        callback();
                     }
-                    callback();
                 }
             };
 

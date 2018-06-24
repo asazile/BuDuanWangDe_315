@@ -39,3 +39,28 @@ SELECT * FROM
 (SELECT count(*) AS '2200-2399' FROM user WHERE rank BETWEEN 2200 AND 2399) g,
 (SELECT count(*) AS '2400-2599' FROM user WHERE rank BETWEEN 2400 AND 2599) h,
 (SELECT count(*) AS '2600-' FROM user WHERE rank >= 2600) i;
+
+
+SELECT
+    user.name,user.rank,@rownum := @rownum + 1 AS rownum
+FROM
+    (
+        SELECT
+            name,
+            rank
+        FROM
+            user
+        ORDER BY
+            rank DESC
+            LIMIT 0,10
+    ) AS user,
+    (SELECT @rownum := 0)  as a;
+
+
+
+select 
+    historyRank 
+from 
+    user 
+where 
+    id='';
