@@ -241,7 +241,14 @@
 
                     checkIsDraw: function (curChess) {
                         // is Draw function
-                        
+                            for(let i=0;i<16;i++) {
+                                for(let j=0;j<16;j++) {
+                                    if(curChess[i][j]===false) {
+                                        return false;
+                                    }
+                                }
+                            }
+                        return true;                        
                     },
 
                     gameOver: function (addRank, isWin, normal = true) {
