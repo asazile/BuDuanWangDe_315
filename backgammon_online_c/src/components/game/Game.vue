@@ -241,13 +241,15 @@
 
                     checkIsDraw: function (curChess) {
                         // is Draw function
-                        
+
                     },
 
                     gameOver: function (addRank, isWin, normal = true) {
                         this.over = true;
                         _this.surrender = true;
                         _this.gameOver = true;
+
+                        console.log('gameOver');
 
                         addRank = Number(addRank);
 
@@ -259,15 +261,17 @@
                             rank: newRank
                         });
 
+                        console.log('updateRank');
+
                         const gameOverHandle = function (addRank, oldRank, newRank, isWin, normal) {
                             if (!normal) {
-                                this.$notify({
+                                _this.$notify({
                                     title: '对方逃跑或掉线',
                                     message: '您取得了胜利！'
                                 });
                             }
 
-                            this.$store.commit({
+                            _this.$store.commit({
                                 type: 'closeSocket',
                                 socket: null
                             });
@@ -414,8 +418,8 @@
                                 const matching = function (gameType) {
                                     if (gameType === 'matching') {
                                         axios.post('/users/addMGameRecord', {matchName: _this.matchName, isWin: 1});
-                                        this.gameOver(0, 1);
                                         socket.emit('gameOver', -1);
+                                        backgammon.gameOver(0, 1);
                                     } else {
                                         return 'nextSuccessor';
                                     }
@@ -433,8 +437,8 @@
                                                 let res = response.data;
 
                                                 if(res.status) {
-                                                    backgammon.gameOver(res.data.addRank, 1);
                                                     socket.emit('gameOver', -1);
+                                                    backgammon.gameOver(res.data.addRank, 1);
                                                 }else {
                                                     alert(res.message);
                                                 }
@@ -575,12 +579,13 @@
                     });
 
                     let gameType = _this.getGameType;
+                    console.log(gameType);
 
                     const matching = function (gameType) {
                         if (gameType === 'matching') {
                             axios.post('/users/addMGameRecord', {matchName: _this.matchName, isWin: 1});
-                            backgammon.gameOver(0, 1);
                             socket.emit('gameOver', -1);
+                            backgammon.gameOver(0, 1);
                         } else {
                             return 'nextSuccessor';
                         }
@@ -598,8 +603,8 @@
                                     let res = response.data;
 
                                     if(res.status) {
-                                        backgammon.gameOver(res.data.addRank, 1);
                                         socket.emit('gameOver', -1);
+                                        backgammon.gameOver(res.data.addRank, 1);
                                     }else {
                                         alert(res.message);
                                     }
