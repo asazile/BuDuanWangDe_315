@@ -13,6 +13,7 @@
 
     require('echarts/lib/chart/pie');
     require('echarts/lib/chart/bar');
+    require('echarts/lib/chart/line');
 
     require('echarts/lib/component/tooltip');
     require('echarts/lib/component/title');
@@ -40,9 +41,9 @@
 
                     let res = response.data;
 
-                    const myChart = echarts.init(document.getElementById('rankDistribution'));
+                    const myChart1 = echarts.init(document.getElementById('rankDistribution'));
 
-                    myChart.setOption({
+                    myChart1.setOption({
                         title : {
                             text: 'Rank 分值分布图',
                             x:'center'
@@ -80,13 +81,14 @@
                 });
 
 
-            const myChart = echarts.init(document.getElementById('highRank'));
+            const myChart2 = echarts.init(document.getElementById('highRank'));
 
-            myChart.setOption({
+            myChart2.setOption({
                 title: {
                     text: 'Rank 前十 天梯榜',
                     x:'center'
                 },
+
                 tooltip: {
                     trigger: 'axis',
                     axisPointer: {
@@ -117,6 +119,27 @@
                         data: [18203, 23489, 29034, 104970, 131744, 630230]
                     }
                 ]
+            });
+
+            const myChart3 = echarts.init(document.getElementById('userHistoryRank'));
+
+            myChart3.setOption({
+                title: {
+                    text: 'Rank 值变化情况',
+                    x:'center'
+                },
+                xAxis: {
+                    type: 'category',
+                    data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+                },
+                yAxis: {
+                    type: 'value'
+                },
+                series: [{
+                    data: [820, 932, 901, 934, 1290, 1330, 1320],
+                    type: 'line',
+                    smooth: true
+                }]
             });
         }
     }
