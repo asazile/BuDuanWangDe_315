@@ -178,6 +178,11 @@
                         });
                     }
                 });
+
+                socket.on('cancelGame', () => {
+                    this.$message('对方取消了游戏匹配！');
+                    this.cancelGame();
+                });
             },
 
             cancelGame () {

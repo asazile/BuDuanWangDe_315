@@ -25,8 +25,6 @@ module.exports = {
                     return false;
                 }
 
-                console.log(rs);
-
                 callback(null, rs);
             });
         });

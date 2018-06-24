@@ -31,6 +31,9 @@ module.exports = function (qualifyingNameSpace) {
 
                 socket.join(roomId, () => {
                     socket.otherSocket.join(roomId, () => {
+                        socket.matched = true;
+                        socket.otherSocket.matched = true;
+
                         qualifyingNameSpace.to(roomId).emit('matched', {
                             matchName1: socket.handshake.query.name,
                             matchName2: socket.otherSocket.handshake.query.name
@@ -95,6 +98,9 @@ module.exports = function (qualifyingNameSpace) {
 
             socket.join(roomId, () => {
                 socket.otherSocket.join(roomId, () => {
+                    socket.matched = true;
+                    socket.otherSocket.matched = true;
+
                     qualifyingNameSpace.to(roomId).emit('matched', {
                         matchName1: socket.handshake.query.name,
                         matchName2: socket.otherSocket.handshake.query.name
@@ -125,6 +131,9 @@ module.exports = function (qualifyingNameSpace) {
             socket.chess = 1;
             socket.otherSocket.chess = 0;
 
+            socket.gaming = true;
+            socket.otherSocket.gaming = true;
+
             let data = {};
             data[socket.id] = '黑子';
             data[socket.otherSocket.id] = '白子';
@@ -149,6 +158,16 @@ module.exports = function (qualifyingNameSpace) {
         socket.on('disconnect', function(result){
             gameSocketNum--;
             console.log('qualifying game user disconnected');
+
+            let normal = result.indexOf('error') === -1;
+
+            if (!normal && socket.matched && !socket.gaming) {
+                socket.otherSocket.emit('cancelGame');
+            }
+
+            if (!normal && socket.matched && socket.gaming) {
+                socket.otherSocket.emit('exitGame');
+            }
         });
     });
 };

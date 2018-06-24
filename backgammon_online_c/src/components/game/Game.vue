@@ -239,7 +239,12 @@
                         return flag;
                     },
 
-                    gameOver: function (addRank, isWin) {
+                    checkIsDraw: function (curChess) {
+                        // is Draw function
+                        
+                    },
+
+                    gameOver: function (addRank, isWin, normal = true) {
                         this.over = true;
                         _this.surrender = true;
                         _this.gameOver = true;
@@ -253,6 +258,22 @@
                             type: 'updateRank',
                             rank: newRank
                         });
+
+                        const gameOverHandle = function (addRank, oldRank, newRank, isWin, normal) {
+                            if (!normal) {
+                                this.$notify({
+                                    title: '对方逃跑或掉线',
+                                    message: '您取得了胜利！'
+                                });
+                            }
+
+                            this.$store.commit({
+                                type: 'closeSocket',
+                                socket: null
+                            });
+
+                            return 'nextSuccessor';
+                        };
 
                         const gameOverWin = function (addRank, oldRank, newRank, isWin) {
                             if (isWin === 1) {
@@ -292,14 +313,16 @@
                             console.log(new Error('isWin variable type is error.'));
                         };
 
-                        let chainGameOverWin = new Chain(gameOverWin),
+                        let chainGameOverHandle = new Chain(gameOverHandle),
+                            chainGameOverWin = new Chain(gameOverWin),
                             chainGameOverDefeat = new Chain(gameOverDefeat),
                             chainGameOverError = new Chain(gameOverError);
 
+                        chainGameOverHandle.setNextSuccessor(chainGameOverWin);
                         chainGameOverWin.setNextSuccessor(chainGameOverDefeat);
                         chainGameOverDefeat.setNextSuccessor(chainGameOverError);
 
-                        chainGameOverWin.passRequest(addRank, oldRank, newRank, isWin);
+                        chainGameOverHandle.passRequest(addRank, oldRank, newRank, isWin, normal);
                     },
 
                     removeChessPiece: function () {

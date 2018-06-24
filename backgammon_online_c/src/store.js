@@ -40,7 +40,7 @@ export default new Vuex.Store({
         },
 
         closeSocket (state, data) {
-            state.socket && state.socket.close();
+            state.socket && state.socket.close(true);
             state.socket = data.socket;
         },
 
