@@ -6,7 +6,6 @@ CREATE TABLE IF NOT EXISTS `user` (
     name VARCHAR(32) NOT NULL,          /*昵称/
     password VARCHAR(32) NOT NULL,	/*登陆密码*/
     rank SMALLINT UNSIGNED NOT NULL DEFAULT 1100,  /*排名分初始为1100*/
-    historyRank VARCHAR(128) NOT NULL DEFAULT '',
     firstGame BOOL DEFAULT 1  /*判定是否第一次进入游戏*/
 )ENGINE=INNODB CHARSET=UTF8;
 
@@ -14,6 +13,7 @@ CREATE TABLE IF NOT EXISTS `qualifyingGameRecord` (
     id INT UNSIGNED KEY AUTO_INCREMENT,
     thisId INT UNSIGNED NOT NULL,
     thisName VARCHAR(32) NOT NULL,
+    thisRank SMALLINT UNSIGNED NOT NULL,
     matchName VARCHAR(32) NOT NULL,
     isWin SMALLINT NOT NULL,
     date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -38,7 +38,6 @@ SELECT * FROM
 (SELECT count(*) AS '2000-2199' FROM user WHERE rank BETWEEN 2000 AND 2199) f,
 (SELECT count(*) AS '2200-2399' FROM user WHERE rank BETWEEN 2200 AND 2399) g,
 (SELECT count(*) AS '2400-2599' FROM user WHERE rank BETWEEN 2400 AND 2599) h,
-<<<<<<< Updated upstream
 (SELECT count(*) AS '2600-' FROM user WHERE rank >= 2600) i;
 
 
@@ -59,12 +58,5 @@ FROM
 
 
 
-select 
-    historyRank 
-from 
-    user 
-where 
-    id='';
-=======
-(SELECT count(*) AS '2600-' FROM user WHERE rank >= 2600) i;
->>>>>>> Stashed changes
+select historyRank from user where id='';
+

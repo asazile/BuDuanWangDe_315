@@ -80,6 +80,7 @@ router.post('/updateFirstGame', function (req, res, next) {
 router.post('/addQGameRecord', function (req, res, next) {
     let thisId = req.session.userInfo.id,
         thisName = req.session.userInfo.name,
+        thisRank = req.body.thisRank,
         matchName = req.body.matchName,
         isWin = req.body.isWin;
 
@@ -89,7 +90,7 @@ router.post('/addQGameRecord', function (req, res, next) {
         return false;
     }
 
-    User.addQGameRecord(thisId, thisName, matchName, isWin, function (err) {
+    User.addQGameRecord(thisId, thisName, thisRank, matchName, isWin, function (err) {
         if (err) {
             let result = new ResObject(0, err.message);
             res.json(result);

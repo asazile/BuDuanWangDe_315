@@ -451,7 +451,6 @@
 
                                 const qualifying = function (gameType) {
                                     if (gameType === 'qualifying') {
-                                        axios.post('/users/addQGameRecord', {matchName: _this.matchName, isWin: 1});
                                         axios.post('/users/changeRank', {
                                             rA: _this.getRank,
                                             rB: _this.matchRank,
@@ -461,6 +460,8 @@
                                                 let res = response.data;
 
                                                 if(res.status) {
+                                                    axios.post('/users/addQGameRecord', {matchName: _this.matchName, isWin: 1, thisRank: (Number(_this.getRank) + res.data.addRank >= 0) ? (Number(_this.getRank) + res.data.addRank) : 0});
+
                                                     socket.emit('gameOver', -1);
                                                     backgammon.gameOver(res.data.addRank, 1);
                                                 }else {
@@ -514,7 +515,6 @@
 
                                 const qualifying = function (gameType) {
                                     if (gameType === 'qualifying') {
-                                        axios.post('/users/addQGameRecord', {matchName: _this.matchName, isWin: 0});
                                         axios.post('/users/changeRank', {
                                             rA: _this.getRank,
                                             rB: _this.matchRank,
@@ -524,6 +524,8 @@
                                                 let res = response.data;
 
                                                 if(res.status) {
+                                                    axios.post('/users/addQGameRecord', {matchName: _this.matchName, isWin: 0, thisRank: (Number(_this.getRank) + res.data.addRank >= 0) ? (Number(_this.getRank) + res.data.addRank) : 0});
+
                                                     socket.emit('gameOver', 0);
                                                     backgammon.gameOver(res.data.addRank, 0);
                                                 }else {
@@ -621,7 +623,6 @@
 
                     const qualifying = function (gameType) {
                         if (gameType === 'qualifying') {
-                            axios.post('/users/addQGameRecord', {matchName: _this.matchName, isWin: -1});
                             axios.post('/users/changeRank', {
                                 rA: _this.getRank,
                                 rB: _this.matchRank,
@@ -631,6 +632,8 @@
                                     let res = response.data;
 
                                     if(res.status) {
+                                        axios.post('/users/addQGameRecord', {matchName: _this.matchName, isWin: -1, thisRank: (Number(_this.getRank) + res.data.addRank >= 0) ? (Number(_this.getRank) + res.data.addRank) : 0});
+
                                         backgammon.gameOver(res.data.addRank, isWin);
                                     }else {
                                         alert(res.message);
@@ -678,7 +681,6 @@
 
                     const qualifying = function (gameType) {
                         if (gameType === 'qualifying') {
-                            axios.post('/users/addQGameRecord', {matchName: _this.matchName, isWin: 1});
                             axios.post('/users/changeRank', {
                                 rA: _this.getRank,
                                 rB: _this.matchRank,
@@ -688,6 +690,8 @@
                                     let res = response.data;
 
                                     if(res.status) {
+                                        axios.post('/users/addQGameRecord', {matchName: _this.matchName, isWin: 1, thisRank: (Number(_this.getRank) + res.data.addRank >= 0) ? (Number(_this.getRank) + res.data.addRank) : 0});
+
                                         socket.emit('gameOver', -1);
                                         backgammon.gameOver(res.data.addRank, 1);
                                     }else {
@@ -735,7 +739,6 @@
 
                     const qualifying = function (gameType) {
                         if (gameType === 'qualifying') {
-                            axios.post('/users/addQGameRecord', {matchName: _this.matchName, isWin: 1});
                             axios.post('/users/changeRank', {
                                 rA: _this.getRank,
                                 rB: _this.matchRank,
@@ -745,6 +748,8 @@
                                     let res = response.data;
 
                                     if(res.status) {
+                                        axios.post('/users/addQGameRecord', {matchName: _this.matchName, isWin: 1, thisRank: (Number(_this.getRank) + res.data.addRank >= 0) ? (Number(_this.getRank) + res.data.addRank) : 0});
+
                                         backgammon.gameOver(res.data.addRank, 1);
                                     }else {
                                         alert(res.message);

@@ -57,7 +57,7 @@ module.exports = {
         });
     },
 
-    addQGameRecord: function (thisId, thisName, matchName, isWin, callback) {
+    addQGameRecord: function (thisId, thisName, thisRank, matchName, isWin, callback) {
         let pool = connPool();
 
         pool.getConnection(function (err, conn) {
@@ -66,8 +66,8 @@ module.exports = {
                 return false;
             }
 
-            let sql = 'INSERT qualifyingGameRecord(thisId, thisName, matchName, isWin) VALUES(?, ?, ?, ?);';
-            let param = [thisId, thisName, matchName, isWin];
+            let sql = 'INSERT qualifyingGameRecord(thisId, thisName, thisRank, matchName, isWin) VALUES(?, ?, ?, ?, ?);';
+            let param = [thisId, thisName, thisRank, matchName, isWin];
             conn.query(sql, param, function (err, rs) {
                 conn.release();
 
