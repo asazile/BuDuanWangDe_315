@@ -49,7 +49,6 @@ module.exports = function (matchingNameSpace) {
             }
         }
 
-        console.log('matching one poolHander.');
         setTimeout(poolHander, 1000, gameWaitPool);
     };
 
@@ -134,6 +133,9 @@ module.exports = function (matchingNameSpace) {
             socket.chess = 1;
             socket.otherSocket.chess = 0;
 
+            socket.gaming = true;
+            socket.otherSocket.gaming = true;
+
             let data = {};
             data[socket.id] = '黑子';
             data[socket.otherSocket.id] = '白子';
@@ -162,9 +164,7 @@ module.exports = function (matchingNameSpace) {
             gameSocketNum--;
             console.log('matching game user disconnected');
 
-            let normal = result.indexOf('error') === -1;
-
-            console.log(normal, socket.matched, socket.gaming);
+            let normal = !((result.indexOf('error') > -1) || (result.indexOf('close') > -1));
 
             if (!normal && socket.matched && !socket.gaming) {
                 socket.otherSocket.emit('cancelGame', false);

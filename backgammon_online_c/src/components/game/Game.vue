@@ -680,6 +680,7 @@
                     };
 
                     const qualifying = function (gameType) {
+                        console.log(gameType);
                         if (gameType === 'qualifying') {
                             axios.post('/users/changeRank', {
                                 rA: _this.getRank,
@@ -729,6 +730,7 @@
                     let gameType = _this.getGameType;
 
                     const matching = function (gameType) {
+                        console.log(gameType);
                         if (gameType === 'matching') {
                             axios.post('/users/addMGameRecord', {matchName: _this.matchName, isWin: 1});
                             backgammon.gameOver(0, 1);

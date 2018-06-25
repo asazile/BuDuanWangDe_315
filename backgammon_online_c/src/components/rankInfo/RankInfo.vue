@@ -81,66 +81,81 @@
                 });
 
 
-            const myChart2 = echarts.init(document.getElementById('highRank'));
+            axios.post('/visualization/hightRank')
+                .then((response) => {
+                    loading.close();
 
-            myChart2.setOption({
-                title: {
-                    text: 'Rank 前十 天梯榜',
-                    x:'center'
-                },
+                    let res = response.data;
 
-                tooltip: {
-                    trigger: 'axis',
-                    axisPointer: {
-                        type: 'shadow'
-                    }
-                },
-                legend: {
-                    data: ['Rank值']
-                },
-                grid: {
-                    left: '3%',
-                    right: '4%',
-                    bottom: '3%',
-                    containLabel: true
-                },
-                xAxis: {
-                    type: 'value',
-                    boundaryGap: [0, 0.01]
-                },
-                yAxis: {
-                    type: 'category',
-                    data: ['巴西','印尼','美国','印度','中国','世界人口(万)']
-                },
-                series: [
-                    {
-                        name: 'Rank值',
-                        type: 'bar',
-                        data: [18203, 23489, 29034, 104970, 131744, 630230]
-                    }
-                ]
-            });
+                    const myChart2 = echarts.init(document.getElementById('highRank'));
 
-            const myChart3 = echarts.init(document.getElementById('userHistoryRank'));
+                    myChart2.setOption({
+                        title: {
+                            text: 'Rank 前十 天梯榜',
+                            x:'center'
+                        },
 
-            myChart3.setOption({
-                title: {
-                    text: 'Rank 值变化情况',
-                    x:'center'
-                },
-                xAxis: {
-                    type: 'category',
-                    data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
-                },
-                yAxis: {
-                    type: 'value'
-                },
-                series: [{
-                    data: [820, 932, 901, 934, 1290, 1330, 1320],
-                    type: 'line',
-                    smooth: true
-                }]
-            });
+                        tooltip: {
+                            trigger: 'axis',
+                            axisPointer: {
+                                type: 'shadow'
+                            }
+                        },
+                        legend: {
+                            data: ['Rank值']
+                        },
+                        grid: {
+                            left: '3%',
+                            right: '4%',
+                            bottom: '3%',
+                            containLabel: true
+                        },
+                        xAxis: {
+                            type: 'value',
+                            boundaryGap: [0, 0.01]
+                        },
+                        yAxis: {
+                            type: 'category',
+                            data: res.data.yAxisData
+                        },
+                        series: [
+                            {
+                                name: 'Rank值',
+                                type: 'bar',
+                                data: res.data.seriesData
+                            }
+                        ]
+                    });
+                });
+
+
+            axios.post('/visualization/userHistoryRank')
+                .then((response) => {
+                    loading.close();
+
+                    let res = response.data;
+
+                    const myChart3 = echarts.init(document.getElementById('userHistoryRank'));
+
+                    myChart3.setOption({
+                        title: {
+                            text: 'Rank 值变化情况',
+                            x:'center'
+                        },
+                        xAxis: {
+                            type: 'category',
+                            data: res.data.xAxisData
+                        },
+                        yAxis: {
+                            type: 'value'
+                        },
+                        series: [{
+                            data: res.data.seriesData,
+                            type: 'line',
+                            smooth: true
+                        }]
+                    });
+                });
         }
     }
 </script>

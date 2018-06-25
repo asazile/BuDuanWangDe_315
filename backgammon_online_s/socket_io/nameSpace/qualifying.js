@@ -49,7 +49,6 @@ module.exports = function (qualifyingNameSpace) {
             }
         }
 
-        console.log('qualifying one poolHander.');
         setTimeout(poolHander, 1000, gameWaitPool);
     };
 
@@ -69,7 +68,6 @@ module.exports = function (qualifyingNameSpace) {
 
             let thatRank = thatSocket.handshake.query.rank;
 
-            console.log(Math.abs(Number(curRank)-Number(thatRank)), curSocket.weightValue);
             if (Math.abs(Number(curRank)-Number(thatRank)) <= (curSocket.weightValue || 20)) {
                 gameWaitPool.splice(i, 1);
 
@@ -167,8 +165,6 @@ module.exports = function (qualifyingNameSpace) {
             console.log('qualifying game user disconnected');
 
             let normal = result.indexOf('error') === -1;
-
-            console.log(normal, socket.matched, socket.gaming);
 
             if (!normal && socket.matched && !socket.gaming) {
                 socket.otherSocket.emit('cancelGame', false);

@@ -28,5 +28,56 @@ module.exports = {
                 callback(null, rs);
             });
         });
+    },
+
+    hightRank: function (callback) {
+        let pool = connPool();
+
+        pool.getConnection(function (err, conn) {
+            if(err) {
+                callback(err);
+                return false;
+            }
+
+            let sql = 'SELECT user.name,user.rank,@rownum := @rownum + 1 AS rownum FROM(SELECT name,rank FROM user ORDER BY rank DESC LIMIT 0,10) AS user,(SELECT @rownum := 0)  as a;';
+            let param = [];
+            conn.query(sql, param, function (err, rs) {
+                conn.release();
+
+                if(err) {
+                    fs.appendFile(LOG.modelsError, `Time: ${new Date().toUTCString()}\n${err.stack}\n`, 'utf8');
+                    callback(new Error('数据库错误...'));
+                    return false;
+                }
+
+                callback(null, rs);
+            });
+        });
+    },
+
+    userHistoryRank: function (id, callback) {
+        let pool = connPool();
+
+        pool.getConnection(function (err, conn) {
+            if(err) {
+                callback(err);
+                return false;
+            }
+
+            let sql = 'SELECT thisRank, DATE_FORMAT(date,\'%m-%d\') AS date FROM qualifyingGameRecord WHERE id = ? ORDER BY date DESC LIMIT 0,10;';
+            let param = [id];
+            conn.query(sql, param, function (err, rs) {
+                conn.release();
+
+                if(err) {
+                    fs.appendFile(LOG.modelsError, `Time: ${new Date().toUTCString()}\n${err.stack}\n`, 'utf8');
+                    console.log(err.message);
+                    callback(new Error('数据库错误...'));
+                    return false;
+                }
+
+                callback(null, rs);
+            });
+        });
     }
 };
