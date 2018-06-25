@@ -9,23 +9,22 @@ CREATE TABLE IF NOT EXISTS `user` (
     firstGame BOOL DEFAULT 1  /*判定是否第一次进入游戏*/
 )ENGINE=INNODB CHARSET=UTF8;
 
-CREATE TABLE IF NOT EXISTS `qualifyingGameRecord` (
-    id INT UNSIGNED KEY AUTO_INCREMENT,
-    thisId INT UNSIGNED NOT NULL,
-    thisName VARCHAR(32) NOT NULL,
-    thisRank SMALLINT UNSIGNED NOT NULL,
-    matchName VARCHAR(32) NOT NULL,
-    isWin SMALLINT NOT NULL,
-    date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+CREATE TABLE IF NOT EXISTS `qualifyingGameRecord` (  /*创建qualifyingGameRecord表*/
+    id INT UNSIGNED KEY AUTO_INCREMENT,  /*id无符号数以增加可表示的范围*/
+    thisId INT UNSIGNED NOT NULL,       /*当前用户的id*/
+    thisName VARCHAR(32) NOT NULL,      /*当前用户的用户名*/
+    matchName VARCHAR(32) NOT NULL,     /*对方玩家的用户名*/
+    isWin SMALLINT NOT NULL,            /*游戏结果*/
+    date TIMESTAMP DEFAULT CURRENT_TIMESTAMP        /*游戏时间*/
 )ENGINE=INNODB CHARSET=UTF8;
 
-CREATE TABLE IF NOT EXISTS `matchingGameRecord` (
-    id INT UNSIGNED KEY AUTO_INCREMENT,
-    thisId INT UNSIGNED NOT NULL,
-    thisName VARCHAR(32) NOT NULL,
-    matchName VARCHAR(32) NOT NULL,
-    isWin SMALLINT NOT NULL,
-    date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+CREATE TABLE IF NOT EXISTS `matchingGameRecord` (    /*创建matchingGameRecord表*/
+    id INT UNSIGNED KEY AUTO_INCREMENT,     /*id无符号数以增加可表示的范围*/
+    thisId INT UNSIGNED NOT NULL,   /*当前用户的id*/
+    thisName VARCHAR(32) NOT NULL,      /*当前用户的用户名*/
+    matchName VARCHAR(32) NOT NULL,     /*对方玩家的用户名**/
+    isWin SMALLINT NOT NULL,/*游戏结果*/
+    date TIMESTAMP DEFAULT CURRENT_TIMESTAMP    /*游戏时间*/
 )ENGINE=INNODB CHARSET=UTF8;
 
 
