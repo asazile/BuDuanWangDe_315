@@ -64,7 +64,7 @@ module.exports = {
                 return false;
             }
 
-            let sql = 'SELECT thisRank, DATE_FORMAT(date,\'%m-%d\') AS date FROM qualifyingGameRecord WHERE id = ? ORDER BY date DESC LIMIT 0,10;';
+            let sql = 'SELECT thisRank, DATE_FORMAT(date,\'%m-%d\') AS date FROM qualifyingGameRecord WHERE thisId = ? ORDER BY date DESC LIMIT 0,10;';
             let param = [id];
             conn.query(sql, param, function (err, rs) {
                 conn.release();
